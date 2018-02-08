@@ -26,21 +26,53 @@ func ensureHttpsInUrl(url string) string {
 	return url
 }
 
+func getGitHubRepoUrl(url string) (string, error) {
+	i := strings.Index(url, "://")
+	l := log.WithFields(log.Fields{
+		"url": url,
+	})
+
+	startIndex := 0
+	if i != -1 {
+		startIndex = i + 3
+	}
+
+	bareUrl := url[startIndex:]
+	bareParts := strings.Split(bareUrl, "/")
+	if bareParts[0] != "github.com" {
+		l.Warn("URL doesn't seem to point to GitHub")
+		return url, fmt.Errorf("URL doesn't seem to point to GitHub")
+	} else if len(bareParts) < 3 {
+		l.Warn("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
+		return url, fmt.Errorf("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
+	}
+
+	newUrl := fmt.Sprint(url[:startIndex], strings.Join(bareParts[:3], "/"))
+	log.WithFields(log.Fields{
+		"oldUrl": url,
+		"newUrl": newUrl,
+	}).Info("Extracted GitHub repository URL")
+	return newUrl, nil
+}
+
 func DownloadFromGitHub(baseDir string, url string) error {
-	repoUrl := ensureHttpsInUrl(url)
+	repoUrl, errr := getGitHubRepoUrl(url)
+	if errr != nil {
+		panic(errr)
+	}
+	fullRepoUrl := ensureHttpsInUrl(repoUrl)
 	log.WithFields(log.Fields{
 		"provider": "github",
-		"url":      repoUrl,
+		"url":      fullRepoUrl,
 		"baseDir":  baseDir,
 	}).Info("Starting download process")
 
 	w := log.WithFields(log.Fields{"provider": "git"}).Writer()
 	defer w.Close()
 
-	// TODO: Split url to retrieve only repo without subfolders
 	// TODO: Make baseDir folder a github.com/<user>/<repo> as in go
 	_, err := git.PlainClone(baseDir, false, &git.CloneOptions{
-		URL:      repoUrl,
+		URL:      fullRepoUrl,
 		Progress: os.Stdout,
 	})
 
