@@ -11,16 +11,25 @@ import (
 	git "gopkg.in/src-d/go-git.v4"
 )
 
+const (
+	infoExtractedUrl         = "Extracted GitHub repository URL"
+	infoStartingDownload     = "Starting download process"
+	infoNoPrefixDetected     = "No prefix detected. Adding https://."
+	infoWrongPrefixdDetected = "Wrong prefix detected. Changing to https://."
+	warnNotGithubUrl         = "URL doesn't seem to point to GitHub"
+	warnUrlTooShort          = "URL too short. GitHub repo follows format: github.com/<user>/<repo>/"
+)
+
 func ensureHttpsInUrl(url string) string {
 	i := strings.Index(url, "://")
 	l := log.WithFields(log.Fields{
 		"url": url,
 	})
 	if i == -1 {
-		l.Info("No prefix detected. Adding https://.")
+		l.Info(infoNoPrefixDetected)
 		return fmt.Sprint("https://", url)
 	} else if url[:i] != "https" {
-		l.Info("Wrong prefix detected. Changing to https://.")
+		l.Info(infoWrongPrefixdDetected)
 		return fmt.Sprint("https://", url[i+3:])
 	}
 	return url
@@ -40,18 +49,18 @@ func getGitHubRepoUrl(url string) (string, error) {
 	bareUrl := url[startIndex:]
 	bareParts := strings.Split(bareUrl, "/")
 	if bareParts[0] != "github.com" {
-		l.Warn("URL doesn't seem to point to GitHub")
-		return url, fmt.Errorf("URL doesn't seem to point to GitHub")
+		l.Warn(warnNotGithubUrl)
+		return url, fmt.Errorf(warnNotGithubUrl)
 	} else if len(bareParts) < 3 {
-		l.Warn("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
-		return url, fmt.Errorf("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
+		l.Warn(warnUrlTooShort)
+		return url, fmt.Errorf(warnUrlTooShort)
 	}
 
 	newUrl := fmt.Sprint(url[:startIndex], strings.Join(bareParts[:3], "/"))
 	log.WithFields(log.Fields{
 		"oldUrl": url,
 		"newUrl": newUrl,
-	}).Info("Extracted GitHub repository URL")
+	}).Info(infoExtractedUrl)
 	return newUrl, nil
 }
 
@@ -65,7 +74,7 @@ func DownloadFromGitHub(baseDir string, url string) error {
 		"provider": "github",
 		"url":      fullRepoUrl,
 		"baseDir":  baseDir,
-	}).Info("Starting download process")
+	}).Info(infoStartingDownload)
 
 	w := log.WithFields(log.Fields{"provider": "git"}).Writer()
 	defer w.Close()
