@@ -64,6 +64,55 @@ func getGitHubRepoUrl(url string) (string, error) {
 	return newUrl, nil
 }
 
+type GitRepo struct {
+	protocol string
+	site     string
+	user     string
+	repo     string
+	path     string
+}
+
+func getGitRepo(url string) (GitRepo, error) {
+	var (
+		protocol = ""
+		site     string
+		user     string
+		repo     string
+		path     = ""
+	)
+
+	l := log.WithFields(log.Fields{
+		"url": url,
+	})
+
+	startIndex := 0
+	i := strings.Index(url, "://")
+	if i != -1 {
+		protocol = url[:i]
+		startIndex = i + 3
+	}
+
+	bareUrl := url[startIndex:]
+	bareParts := strings.Split(bareUrl, "/")
+	if bareParts[0] != "github.com" {
+		l.Warn(warnNotGithubUrl)
+		return GitRepo{}, fmt.Errorf(warnNotGithubUrl)
+	} else if len(bareParts) < 3 {
+		l.Warn(warnUrlTooShort)
+		return GitRepo{}, fmt.Errorf(warnUrlTooShort)
+	}
+
+	site = bareParts[0]
+	user = bareParts[1]
+	repo = bareParts[2]
+
+	if len(bareParts) > 3 {
+		path = strings.Join(bareParts[3:], "/")
+	}
+
+	return GitRepo{protocol, site, user, repo, path}, nil
+}
+
 func DownloadFromGitHub(baseDir string, url string) error {
 	repoUrl, errr := getGitHubRepoUrl(url)
 	if errr != nil {

@@ -32,22 +32,22 @@ func TestEnsureHttpsInUrl(t *testing.T) {
 
 var githubRepoUrlData = []struct {
 	url      string
-	expected string
+	expected GitRepo
 }{
-	{"http://github.com/user/repo/", "http://github.com/user/repo"},
-	{"github.com/user/repo/", "github.com/user/repo"},
-	{"github.com/user/repo/folder/", "github.com/user/repo"},
-	{"https://github.com/user/repo/folder/deeper/", "https://github.com/user/repo"},
+	{"http://github.com/user/repo/", GitRepo{"http", "github.com", "user", "repo", ""}},
+	{"github.com/user/repo/", GitRepo{"", "github.com", "user", "repo", ""}},
+	{"github.com/user/repo/folder/", GitRepo{"", "github.com", "user", "repo", "folder/"}},
+	{"https://github.com/user/repo/folder/deeper/", GitRepo{"https", "github.com", "user", "repo", "folder/deeper/"}},
 }
 
-func TestGetGitHubRepoUrl(t *testing.T) {
+func TestGetGitRepo(t *testing.T) {
 	for _, v := range githubRepoUrlData {
-		actual, err := getGitHubRepoUrl(v.url)
+		actual, err := getGitRepo(v.url)
 		if err != nil {
-			t.Errorf("getGitHubRepoUrl(%s): expected success, actual error: %s", v.url, err)
+			t.Errorf("getGitRepo(%s): expected success, actual error: %s", v.url, err)
 		}
 		if actual != v.expected {
-			t.Errorf("getGitHubRepoUrl(%s): expected %s, actual %s", v.url, v.expected, actual)
+			t.Errorf("getGitRepo(%s): expected %+v, actual %+v", v.url, v.expected, actual)
 		}
 	}
 }
