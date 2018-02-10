@@ -35,33 +35,24 @@ func ensureHttpsInUrl(url string) string {
 	return url
 }
 
-func getGitHubRepoUrl(url string) (string, error) {
-	i := strings.Index(url, "://")
+func (repo *GitRepo) getUrl() string {
 	l := log.WithFields(log.Fields{
-		"url": url,
+		"protocol": repo.protocol,
+		"site":     repo.site,
+		"user":     repo.user,
+		"repo":     repo.repo,
 	})
 
-	startIndex := 0
-	if i != -1 {
-		startIndex = i + 3
+	var newUrl string
+	if repo.protocol == "" {
+		newUrl = strings.Join([]string{repo.site, repo.user, repo.repo}, "/")
+	} else {
+		newUrl = fmt.Sprint(repo.protocol, "://", strings.Join([]string{repo.site, repo.user, repo.repo}, "/"))
 	}
-
-	bareUrl := url[startIndex:]
-	bareParts := strings.Split(bareUrl, "/")
-	if bareParts[0] != "github.com" {
-		l.Warn(warnNotGithubUrl)
-		return url, fmt.Errorf(warnNotGithubUrl)
-	} else if len(bareParts) < 3 {
-		l.Warn(warnUrlTooShort)
-		return url, fmt.Errorf(warnUrlTooShort)
-	}
-
-	newUrl := fmt.Sprint(url[:startIndex], strings.Join(bareParts[:3], "/"))
-	log.WithFields(log.Fields{
-		"oldUrl": url,
+	l.WithFields(log.Fields{
 		"newUrl": newUrl,
 	}).Info(infoExtractedUrl)
-	return newUrl, nil
+	return newUrl
 }
 
 type GitRepo struct {
@@ -114,11 +105,11 @@ func getGitRepo(url string) (GitRepo, error) {
 }
 
 func DownloadFromGitHub(baseDir string, url string) error {
-	repoUrl, errr := getGitHubRepoUrl(url)
+	repo, errr := getGitRepo(url)
 	if errr != nil {
 		panic(errr)
 	}
-	fullRepoUrl := ensureHttpsInUrl(repoUrl)
+	fullRepoUrl := ensureHttpsInUrl(repo.getUrl())
 	log.WithFields(log.Fields{
 		"provider": "github",
 		"url":      fullRepoUrl,

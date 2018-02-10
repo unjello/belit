@@ -30,7 +30,7 @@ func TestEnsureHttpsInUrl(t *testing.T) {
 	}
 }
 
-var githubRepoUrlData = []struct {
+var gitRepoData = []struct {
 	url      string
 	expected GitRepo
 }{
@@ -41,7 +41,7 @@ var githubRepoUrlData = []struct {
 }
 
 func TestGetGitRepo(t *testing.T) {
-	for _, v := range githubRepoUrlData {
+	for _, v := range gitRepoData {
 		actual, err := getGitRepo(v.url)
 		if err != nil {
 			t.Errorf("getGitRepo(%s): expected success, actual error: %s", v.url, err)
@@ -52,7 +52,7 @@ func TestGetGitRepo(t *testing.T) {
 	}
 }
 
-var githubRepoUrlInvalidData = []string{
+var gitRepoInvalidData = []string{
 	"http://github.com/user",
 	"github.com/user",
 	"github.com/",
@@ -62,11 +62,30 @@ var githubRepoUrlInvalidData = []string{
 	"other.com",
 }
 
-func TestGetGitHubRepoUrlInvalid(t *testing.T) {
-	for _, url := range githubRepoUrlInvalidData {
-		_, err := getGitHubRepoUrl(url)
+func TestGetGitRepoInvalid(t *testing.T) {
+	for _, url := range gitRepoInvalidData {
+		_, err := getGitRepo(url)
 		if err == nil {
-			t.Errorf("getGitHubRepoUrl(%s): expected error, actual success", url)
+			t.Errorf("getGitRepo(%s): expected error, actual success", url)
+		}
+	}
+}
+
+var gitRepoUrlData = []struct {
+	repo     GitRepo
+	expected string
+}{
+	{GitRepo{"http", "github.com", "user", "repo", ""}, "http://github.com/user/repo"},
+	{GitRepo{"", "github.com", "user", "repo", ""}, "github.com/user/repo"},
+	{GitRepo{"", "github.com", "user", "repo", "folder/"}, "github.com/user/repo"},
+	{GitRepo{"https", "github.com", "user", "repo", "folder/deeper/"}, "https://github.com/user/repo"},
+}
+
+func TestGitRepoGetUrl(t *testing.T) {
+	for _, v := range gitRepoUrlData {
+		url := v.repo.getUrl()
+		if url != v.expected {
+			t.Errorf("getUrl(%+v): expected %s, actual %s", v.repo, v.expected, url)
 		}
 	}
 }
