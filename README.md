@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/unjello/belit.svg?branch=master)](https://travis-ci.org/unjello/belit)
 [![Go Report Card](https://goreportcard.com/badge/github.com/unjello/belit)](https://goreportcard.com/report/github.com/unjello/belit)
 [![GoDoc](https://godoc.org/github.com/unjello/belit?status.svg)](https://godoc.org/github.com/unjello/belit)
 
