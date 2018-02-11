@@ -91,7 +91,7 @@ func TestGitRepoGetUrl(t *testing.T) {
 }
 
 func TestGitRepoGetBasePath(t *testing.T) {
-	const baseDir = "/home/xxx/.belit"
+	const baseDir = "/home/xxx/.belit/src"
 	const expected = "/home/xxx/.belit/src/github.com/user/repo"
 
 	for _, v := range gitRepoUrlData {

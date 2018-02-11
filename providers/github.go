@@ -57,7 +57,7 @@ func (repo *GitRepo) getUrl() string {
 }
 
 func (repo *GitRepo) getBasePath(baseDir string) string {
-	return path.Join(baseDir, "src", repo.site, repo.user, repo.repo)
+	return path.Join(baseDir, repo.site, repo.user, repo.repo)
 }
 
 type GitRepo struct {
@@ -115,17 +115,17 @@ func DownloadFromGitHub(baseDir string, url string) error {
 		panic(errr)
 	}
 	fullRepoUrl := ensureHttpsInUrl(repo.getUrl())
+	fullBaseDir := repo.getBasePath(baseDir)
 	log.WithFields(log.Fields{
 		"provider": "github",
 		"url":      fullRepoUrl,
-		"baseDir":  baseDir,
+		"baseDir":  fullBaseDir,
 	}).Info(infoStartingDownload)
 
 	w := log.WithFields(log.Fields{"provider": "git"}).Writer()
 	defer w.Close()
 
-	// TODO: Make baseDir folder a github.com/<user>/<repo> as in go
-	_, err := git.PlainClone(baseDir, false, &git.CloneOptions{
+	_, err := git.PlainClone(fullBaseDir, false, &git.CloneOptions{
 		URL:      fullRepoUrl,
 		Progress: os.Stdout,
 	})
