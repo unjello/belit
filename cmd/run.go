@@ -4,10 +4,9 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
-	"os/exec"
+
+	"github.com/unjello/belit/helpers"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -26,11 +25,7 @@ var runCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(0)
 		}
-		var (
-			stdout io.ReadCloser
-			stderr io.ReadCloser
-			err    error
-		)
+
 		tempDir := afero.GetTempDir(AppFs, "belit")
 		log.Info("Creating temporary directory: ", tempDir)
 		tempFile, err2 := afero.TempFile(AppFs, tempDir, "belit-")
@@ -38,60 +33,28 @@ var runCmd = &cobra.Command{
 			panic(err2)
 		}
 		log.Info("Created temporary file: ", tempFile.Name())
-		command := []string{"/usr/bin/clang++", args[0], "-o", tempFile.Name()}
-		log.Info("Executing command: ", command)
 
-		c := exec.Command(command[0], command[1:]...)
+		compileStdOut, compileStdErr, err := helpers.RunCommand([]string{"/usr/bin/clang++", args[0], "-o", tempFile.Name()})
 
-		if stderr, err = c.StderrPipe(); err != nil {
-			panic(err)
-		}
-		if stdout, err = c.StdoutPipe(); err != nil {
-			panic(err)
-		}
+		if err != nil {
+			if len(compileStdErr) > 0 {
+				fmt.Println(compileStdErr)
+			}
 
-		if err = c.Start(); err != nil {
 			panic(err)
 		}
 
-		stderrOut, _ := ioutil.ReadAll(stderr)
-		stdoutOut, _ := ioutil.ReadAll(stdout)
-
-		if len(stderrOut) > 0 {
-			fmt.Println(string(stderrOut))
-		}
-		if len(stdoutOut) > 0 {
-			fmt.Println(string(stdoutOut))
+		if len(compileStdOut) > 0 {
+			fmt.Println(compileStdOut)
 		}
 
-		if err = c.Wait(); err != nil {
-			panic(err)
+		runStdOut, _, runErr := helpers.RunCommand([]string{tempFile.Name()})
+		if runErr != nil {
+			panic(runErr)
 		}
 
-		c = exec.Command(tempFile.Name())
-		if stderr, err = c.StderrPipe(); err != nil {
-			panic(err)
-		}
-		if stdout, err = c.StdoutPipe(); err != nil {
-			panic(err)
-		}
-
-		if err = c.Start(); err != nil {
-			panic(err)
-		}
-
-		stderrOut, _ = ioutil.ReadAll(stderr)
-		stdoutOut, _ = ioutil.ReadAll(stdout)
-
-		if len(stderrOut) > 0 {
-			fmt.Println(string(stderrOut))
-		}
-		if len(stdoutOut) > 0 {
-			fmt.Println(string(stdoutOut))
-		}
-
-		if err = c.Wait(); err != nil {
-			panic(err)
+		if len(runStdOut) > 0 {
+			fmt.Println(runStdOut)
 		}
 
 		err = os.Remove(tempFile.Name())
