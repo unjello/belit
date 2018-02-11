@@ -6,6 +6,13 @@
 
 - Bêlit is a pirate queen in romantic relationship with Conan. It is also an extremely simple package manager for C/C++ that works with header-only libraries.
 
+# Example
+
+Most basic example is compiling a single, standalone, executable:
+```bash
+belit run example/simple.cpp
+```
+
 ## License
 
 - Unlicensed (~Public Domain)
