@@ -5,6 +5,7 @@ package providers
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -53,6 +54,10 @@ func (repo *GitRepo) getUrl() string {
 		"newUrl": newUrl,
 	}).Info(infoExtractedUrl)
 	return newUrl
+}
+
+func (repo *GitRepo) getBasePath(baseDir string) string {
+	return path.Join(baseDir, "src", repo.site, repo.user, repo.repo)
 }
 
 type GitRepo struct {

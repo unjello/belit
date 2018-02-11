@@ -89,3 +89,15 @@ func TestGitRepoGetUrl(t *testing.T) {
 		}
 	}
 }
+
+func TestGitRepoGetBasePath(t *testing.T) {
+	const baseDir = "/home/xxx/.belit"
+	const expected = "/home/xxx/.belit/src/github.com/user/repo"
+
+	for _, v := range gitRepoUrlData {
+		path := v.repo.getBasePath(baseDir)
+		if path != expected {
+			t.Errorf("getBasePath(%s, %+v): expected: %s, actual: %s", baseDir, v.repo, expected, path)
+		}
+	}
+}
