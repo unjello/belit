@@ -31,17 +31,27 @@ func Execute() {
 }
 
 var Verbose bool
+var Noisy bool
+var Debug bool
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output (info)")
+	rootCmd.PersistentFlags().BoolVarP(&Noisy, "noisy", "n", false, "noisy output (trace)")
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "debug output ( w/ output from commands)")
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	viper.BindPFlag("noisy", rootCmd.PersistentFlags().Lookup("noisy"))
+	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	viper.SetDefault("verbose", false)
+	viper.SetDefault("noisy", false)
+	viper.SetDefault("debug", false)
 }
 
 func initConfig() {
 	if viper.GetBool("verbose") == true {
 		logrus.SetLevel(logrus.InfoLevel)
+	} else if viper.GetBool("noisy") == true || viper.GetBool("debug") == true {
+		logrus.SetLevel(logrus.DebugLevel)
 	} else {
 		logrus.SetLevel(logrus.ErrorLevel)
 	}
