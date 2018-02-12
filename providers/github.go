@@ -9,16 +9,8 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	git "gopkg.in/src-d/go-git.v4"
-)
-
-const (
-	infoExtractedUrl         = "Extracted GitHub repository URL"
-	infoStartingDownload     = "Starting download process"
-	infoNoPrefixDetected     = "No prefix detected. Adding https://."
-	infoWrongPrefixdDetected = "Wrong prefix detected. Changing to https://."
-	warnNotGithubUrl         = "URL doesn't seem to point to GitHub"
-	warnUrlTooShort          = "URL too short. GitHub repo follows format: github.com/<user>/<repo>/"
 )
 
 func ensureHttpsInUrl(url string) string {
@@ -27,11 +19,17 @@ func ensureHttpsInUrl(url string) string {
 		"url": url,
 	})
 	if i == -1 {
-		l.Info(infoNoPrefixDetected)
-		return fmt.Sprint("https://", url)
+		newUrl := fmt.Sprint("https://", url)
+		l.WithFields(log.Fields{
+			"new": newUrl,
+		}).Debug("No prefix detected. Adding https://.")
+		return newUrl
 	} else if url[:i] != "https" {
-		l.Info(infoWrongPrefixdDetected)
-		return fmt.Sprint("https://", url[i+3:])
+		newUrl := fmt.Sprint("https://", url[i+3:])
+		l.WithFields(log.Fields{
+			"new": newUrl,
+		}).Debug("Wrong prefix detected. Changing to https://.")
+		return newUrl
 	}
 	return url
 }
@@ -52,7 +50,7 @@ func (repo *GitRepo) getUrl() string {
 	}
 	l.WithFields(log.Fields{
 		"newUrl": newUrl,
-	}).Info(infoExtractedUrl)
+	}).Info("Extracted GitHub repository URL")
 	return newUrl
 }
 
@@ -91,11 +89,13 @@ func getGitRepo(url string) (GitRepo, error) {
 	bareUrl := url[startIndex:]
 	bareParts := strings.Split(bareUrl, "/")
 	if bareParts[0] != "github.com" {
-		l.Warn(warnNotGithubUrl)
-		return GitRepo{}, fmt.Errorf(warnNotGithubUrl)
+		err := fmt.Errorf("URL doesn't seem to point to GitHub")
+		l.Warn(err)
+		return GitRepo{}, err
 	} else if len(bareParts) < 3 {
-		l.Warn(warnUrlTooShort)
-		return GitRepo{}, fmt.Errorf(warnUrlTooShort)
+		err := fmt.Errorf("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
+		l.Warn(err)
+		return GitRepo{}, err
 	}
 
 	site = bareParts[0]
@@ -120,15 +120,18 @@ func DownloadFromGitHub(baseDir string, url string) error {
 		"provider": "github",
 		"url":      fullRepoUrl,
 		"baseDir":  fullBaseDir,
-	}).Info(infoStartingDownload)
+	}).Info("Starting download process")
 
 	w := log.WithFields(log.Fields{"provider": "git"}).Writer()
 	defer w.Close()
 
-	_, err := git.PlainClone(fullBaseDir, false, &git.CloneOptions{
-		URL:      fullRepoUrl,
-		Progress: os.Stdout,
-	})
+	options := git.CloneOptions{
+		URL: fullRepoUrl,
+	}
+	if viper.GetBool("debug") {
+		options.Progress = os.Stdout
+	}
+	_, err := git.PlainClone(fullBaseDir, false, &options)
 
 	if err != nil {
 		panic(err)

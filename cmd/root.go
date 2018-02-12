@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -55,4 +56,14 @@ func initConfig() {
 	} else {
 		logrus.SetLevel(logrus.ErrorLevel)
 	}
+
+	log.WithFields(log.Fields{
+		"verbose": viper.GetBool("verbose"),
+	}).Debug("Config value set")
+	log.WithFields(log.Fields{
+		"noisy": viper.GetBool("noisy"),
+	}).Debug("Config value set")
+	log.WithFields(log.Fields{
+		"debug": viper.GetBool("debug"),
+	}).Debug("Config value set")
 }

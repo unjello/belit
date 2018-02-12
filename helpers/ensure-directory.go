@@ -10,13 +10,13 @@ import (
 
 func EnsureDirectory(baseDir string) {
 	log.WithFields(log.Fields{
-		"baseDir": baseDir,
-	}).Info("Ensuring folder exists")
+		"folder": baseDir,
+	}).Debug("Ensure folder exists")
 	err := AppFS.MkdirAll(baseDir, os.ModeDir|0775)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"baseDir": baseDir,
-			"error":   err,
+			"folder": baseDir,
+			"error":  err,
 		}).Errorf("Error creating folder")
 	}
 }

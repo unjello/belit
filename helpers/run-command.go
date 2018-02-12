@@ -31,25 +31,23 @@ func RunCommand(command []string) (string, string, error) {
 	if len(command) < 1 {
 		return "", "", fmt.Errorf(errorNoCommand)
 	}
-
-	l := log.WithFields(log.Fields{
-		"cmd": command,
-	})
-	log.Info(infoExecutingCommand, strings.Join(command, " "))
+	log.WithFields(log.Fields{
+		"cmd": strings.Join(command, " "),
+	}).Info(infoExecutingCommand)
 
 	c := exec.Command(command[0], command[1:]...)
 
 	if stderr, err = c.StderrPipe(); err != nil {
-		l.Panic(panicFailedToGetStderrPipe)
+		log.Panic(panicFailedToGetStderrPipe)
 		return "", "", err
 	}
 	if stdout, err = c.StdoutPipe(); err != nil {
-		l.Panic(panicFailedToGetStdoutPipe)
+		log.Panic(panicFailedToGetStdoutPipe)
 		return "", "", err
 	}
 
 	if err = c.Start(); err != nil {
-		l.Panic(panicFailedToStartCommand)
+		log.Panic(panicFailedToStartCommand)
 		return "", "", err
 	}
 
@@ -57,7 +55,7 @@ func RunCommand(command []string) (string, string, error) {
 	stdoutOut, _ := ioutil.ReadAll(stdout)
 
 	if err = c.Wait(); err != nil {
-		l.Error(panicCommandFailedToRun)
+		log.Error(panicCommandFailedToRun)
 		return string(stdoutOut), string(stderrOut), err
 	}
 
