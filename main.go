@@ -13,6 +13,5 @@ var log = logrus.New()
 
 func main() {
 	log.Out = os.Stdout
-	log.SetLevel(logrus.InfoLevel)
 	cmd.Execute()
 }
