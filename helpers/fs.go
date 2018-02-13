@@ -6,6 +6,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 )
 
 func EnsureDirectory(baseDir string) {
@@ -26,4 +27,23 @@ func RemoveFile(name string) error {
 		"file": name,
 	}).Debug("Remove file")
 	return AppFS.Remove(name)
+}
+
+func GetTempFile() (string, error) {
+	tempDir := afero.GetTempDir(AppFS, "belit")
+	l := log.WithFields(log.Fields{
+		"folder": tempDir,
+	})
+	l.Debug("Created temporary folder")
+
+	tempFile, err := afero.TempFile(AppFS, tempDir, "belit-")
+	if err != nil {
+		l.Error("Error creating temporary file")
+		return "", err
+	}
+	log.WithFields(log.Fields{
+		"file": tempFile.Name(),
+	}).Debug("Created temporary file")
+
+	return tempFile.Name(), nil
 }

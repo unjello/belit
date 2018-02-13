@@ -7,7 +7,6 @@ import (
 
 	"github.com/unjello/belit/helpers"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,22 +25,16 @@ var runCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		tempDir := afero.GetTempDir(AppFs, "belit")
-		log.WithFields(log.Fields{
-			"folder": tempDir,
-		}).Debug("Created temporary folder")
+		var (
+			err      error
+			tempFile string
+		)
 
-		tempFile, err2 := afero.TempFile(AppFs, tempDir, "belit-")
-		if err2 != nil {
-			panic(err2)
+		if tempFile, err = helpers.GetTempFile(); err != nil {
+			panic(err)
 		}
-		log.WithFields(log.Fields{
-			"file": tempFile.Name(),
-		}).Debug("Created temporary file")
 
-		var err error
-
-		compileCommand := []string{"/usr/bin/clang++", args[0], "-o", tempFile.Name()}
+		compileCommand := []string{"/usr/bin/clang++", args[0], "-o", tempFile}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")
 		}
@@ -49,11 +42,11 @@ var runCmd = &cobra.Command{
 		if err = helpers.PrintCommand(compileCommand, viper.GetBool("debug")); err != nil {
 			panic(err)
 		}
-		if err = helpers.PrintCommand([]string{tempFile.Name()}, true); err != nil {
+		if err = helpers.PrintCommand([]string{tempFile}, true); err != nil {
 			panic(err)
 		}
 
-		if err = helpers.RemoveFile(tempFile.Name()); err != nil {
+		if err = helpers.RemoveFile(tempFile); err != nil {
 			panic(err)
 		}
 	},
