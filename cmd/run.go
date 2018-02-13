@@ -34,7 +34,7 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		compileCommand := []string{"/usr/bin/clang++", args[0], "-o", tempFile}
+		compileCommand := []string{viper.GetString("cxx"), args[0], "-o", tempFile}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")
 		}

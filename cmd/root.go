@@ -5,6 +5,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -46,6 +47,20 @@ func init() {
 	viper.SetDefault("verbose", false)
 	viper.SetDefault("noisy", false)
 	viper.SetDefault("debug", false)
+
+	viper.BindEnv("cxx", "CXX")
+	switch runtime.GOOS {
+	case "linux":
+		viper.SetDefault("cxx", "/usr/bin/g++")
+		break
+	case "darwin":
+		viper.SetDefault("cxx", "/usr/bin/clang++")
+		break
+	case "windows":
+		log.WithFields(log.Fields{
+			"os": runtime.GOOS,
+		}).Panic("System not supported")
+	}
 }
 
 func initConfig() {
