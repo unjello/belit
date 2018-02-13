@@ -20,3 +20,10 @@ func EnsureDirectory(baseDir string) {
 		}).Errorf("Error creating folder")
 	}
 }
+
+func RemoveFile(name string) error {
+	log.WithFields(log.Fields{
+		"file": name,
+	}).Debug("Remove file")
+	return AppFS.Remove(name)
+}

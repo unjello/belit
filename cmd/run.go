@@ -53,8 +53,7 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		err = os.Remove(tempFile.Name())
-		if err != nil {
+		if err = helpers.RemoveFile(tempFile.Name()); err != nil {
 			panic(err)
 		}
 	},
