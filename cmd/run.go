@@ -3,7 +3,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/unjello/belit/helpers"
@@ -40,44 +39,18 @@ var runCmd = &cobra.Command{
 			"file": tempFile.Name(),
 		}).Debug("Created temporary file")
 
+		var err error
+
 		compileCommand := []string{"/usr/bin/clang++", args[0], "-o", tempFile.Name()}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")
 		}
 
-		var (
-			stdout string
-			stderr string
-			err    error
-		)
-		stdout, stderr, err = helpers.RunCommand(compileCommand)
-
-		if viper.GetBool("debug") {
-			if len(stderr) > 0 {
-				fmt.Println(stderr)
-			}
-			if len(stdout) > 0 {
-				fmt.Println(stdout)
-			}
-		}
-
-		if err != nil {
-			if viper.GetBool("debug") == false {
-				if len(stderr) > 0 {
-					fmt.Println(stderr)
-				}
-			}
-
+		if err = helpers.PrintCommand(compileCommand, viper.GetBool("debug")); err != nil {
 			panic(err)
 		}
-
-		stdout, stderr, err = helpers.RunCommand([]string{tempFile.Name()})
-		if err != nil {
+		if err = helpers.PrintCommand([]string{tempFile.Name()}, true); err != nil {
 			panic(err)
-		}
-
-		if len(stdout) > 0 {
-			fmt.Println(stdout)
 		}
 
 		err = os.Remove(tempFile.Name())

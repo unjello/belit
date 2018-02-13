@@ -21,6 +21,28 @@ const (
 	panicCommandFailedToRun    = "Command failed to run"
 )
 
+func PrintCommand(command []string, isDebug bool) error {
+	stdout, stderr, err := RunCommand(command)
+
+	if isDebug {
+		if len(stderr) > 0 {
+			fmt.Println(stderr)
+		}
+		if len(stdout) > 0 {
+			fmt.Println(stdout)
+		}
+	}
+
+	if err != nil {
+		if isDebug == false && len(stderr) > 0 {
+			fmt.Println(stderr)
+		}
+		return err
+	}
+
+	return nil
+}
+
 func RunCommand(command []string) (string, string, error) {
 	var (
 		stdout io.ReadCloser
