@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/unjello/belit/helpers"
 )
 
 func init() {
@@ -20,7 +19,7 @@ var cppFiles = []string{
 
 func TestGetCompilerOptionsCpp(t *testing.T) {
 	for _, v := range cppFiles {
-		actual, err := helpers.GetCompilerOptions(v)
+		actual, err := GetCompilerOptions(v)
 		if err != nil {
 			t.Errorf("GetCompilerOptions(%s): expected no error, actual: %s", v, err)
 		}
