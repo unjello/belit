@@ -1,5 +1,5 @@
 // andrzej lichnerowicz, unlicensed (~public domain)
-package helpers_test
+package helpers
 
 import (
 	"testing"
