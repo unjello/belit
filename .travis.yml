@@ -4,10 +4,12 @@ go:
 - 1.9.x
 before_install:
 - go get golang.org/x/tools/cmd/cover
+- go get github.com/modocache/gover
 - go get github.com/mattn/goveralls
 after_script:
-- go test -v -covermode=count -coverprofile=coverage.out
-- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+- go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"{{end}}' ./... | xargs -L 1 sh -c
+- gover
+- goveralls -coverprofile=gover.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
 env:
   global:
     secure: DWeBoDqIeeO5VZbE9XvDoLh0VlQRp8VGT2qFsAS50aehLc/98RBtra1MXAJVia0AcaXRU/ERDF4+/lc3/QQsMvAV4xXYb22iznDn6/ngyw7gpsX9vKAM2aoRoQV/EjmUGnIKj/yobwEFlXh1ojPJ+3Mt/0BXjuXaj77q7r6QAajqr7os3ov3+O/L4fFwObV7sIZpoRD7DI4xWoGjfuaWVdxsZ+sAEEbyatC0ucgCGGZ9WATprC75NwBvEJHRRl8e6vw4katiVgU0Pxn7DLJHGHQzq5wJwhHq+kh8R6LlW9f5GufK94Wbxhc0jQK3HiBVYZ5gbwIW1zQzyW/35VGuo/A4+9ZFeG9nMtRoQgnarIPQrDdQZKpyQOPtm2ArXG5lh6J/D/HM3lGnFZWCGpJrmZ6gkH9qJRekL2UNCIOWAmIIXjVPbtsQjnsSdI74LPpfima92vokQgBCIMFjnMWwDPoQQrnlUsqoGXTNxT0ry4RG4g0XPwWXAhYsEq06UGzKiAtz3/Sq6ivG9U4yXKbcIbVe50Oidpt0lW7QT9wvq9Np6M2yFcur1Lnf+tKh8Se3RC8deSY0Qnr+x03n0EVhwC8IA4vjLiH8HzgWuerxF0+zr793UF3WcWsGNhaXzM7B7pKtMlnlIS/BZHcY/IzT6XAotiwT+2ArH0+V8PCLpo4=
