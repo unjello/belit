@@ -49,12 +49,15 @@ func init() {
 	viper.SetDefault("debug", false)
 
 	viper.BindEnv("cxx", "CXX")
+	viper.BindEnv("cc", "CC")
 	switch runtime.GOOS {
 	case "linux":
 		viper.SetDefault("cxx", "/usr/bin/g++")
+		viper.SetDefault("cc", "/usr/bin/gcc")
 		break
 	case "darwin":
 		viper.SetDefault("cxx", "/usr/bin/clang++")
+		viper.SetDefault("cc", "/usr/bin/clang")
 		break
 	case "windows":
 		log.WithFields(log.Fields{

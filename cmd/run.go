@@ -34,7 +34,16 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		compileCommand := []string{viper.GetString("cxx"), args[0], "-o", tempFile}
+		// TODO: add detectin C/C++
+		// TODO: add CC
+		// TODO: add CCFLAGS
+		// TODO: add CXXFLAGS
+		fileName := args[0]
+		meta, err := helpers.GetCompilerOptions(fileName)
+		if err != nil {
+			panic(err)
+		}
+		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-o", tempFile}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")
 		}
