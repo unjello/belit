@@ -34,8 +34,6 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		// TODO: add detectin C/C++
-		// TODO: add CC
 		// TODO: add CCFLAGS
 		// TODO: add CXXFLAGS
 		fileName := args[0]
