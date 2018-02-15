@@ -15,6 +15,8 @@ var cppFiles = []string{
 	"file.cpp",
 	"test.cxx",
 	"package/test.cc",
+	"/outer/inner/file.c++",
+	"/test.pcc",
 }
 
 func TestGetCompilerOptionsCpp(t *testing.T) {
