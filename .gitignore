@@ -19,3 +19,7 @@
 # Program exe
 belit
 belit.exe
+
+# Coverage files
+.coverprofile
+gover.coverprofile
