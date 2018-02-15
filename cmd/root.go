@@ -50,6 +50,8 @@ func init() {
 
 	viper.BindEnv("cxx", "CXX")
 	viper.BindEnv("cc", "CC")
+	viper.BindEnv("cxxopts", "CXXOPTS")
+	viper.BindEnv("ccopts", "CCOPTS")
 	switch runtime.GOOS {
 	case "linux":
 		viper.SetDefault("cxx", "/usr/bin/g++")

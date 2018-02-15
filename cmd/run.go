@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/unjello/belit/helpers"
 
@@ -34,14 +35,20 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		// TODO: add CCFLAGS
-		// TODO: add CXXFLAGS
 		fileName := args[0]
 		meta, err := helpers.GetCompilerOptions(fileName)
 		if err != nil {
 			panic(err)
 		}
+
 		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-o", tempFile}
+		compileOptionsStr := viper.GetString(meta.CompilerOptionsEnv)
+		// `strings.Split` does return 1-element array if string is empty, but separator not.
+		// need to test for string length first.
+		if len(compileOptionsStr) > 0 {
+			compileOptions := strings.Split(compileOptionsStr, " ")
+			compileCommand = append(compileCommand, compileOptions...)
+		}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")
 		}
