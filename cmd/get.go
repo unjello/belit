@@ -20,9 +20,20 @@ Currently only github repositories are supported.`,
 			cmd.Help()
 			os.Exit(0)
 		}
-		err := helpers.DownloadRemote("/Users/angelo/.belit", args[0])
+		path := args[0]
+		err := helpers.FileExists(path)
+		var repos []string
 		if err != nil {
-			panic(err)
+			repos = []string{path}
+		} else {
+			// TODO: Parse repos info from file
+		}
+		// TODO: do not bellyup when repo exists
+		for _, repo := range repos {
+			err := helpers.DownloadRemote("/Users/angelo/.belit", repo)
+			if err != nil {
+				panic(err)
+			}
 		}
 	},
 }

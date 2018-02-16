@@ -3,6 +3,7 @@
 package helpers
 
 import (
+	"fmt"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -46,4 +47,16 @@ func GetTempFile() (string, error) {
 	}).Debug("Created temporary file")
 
 	return tempFile.Name(), nil
+}
+
+func FileExists(name string) error {
+	l := log.WithFields(log.Fields{
+		"file": name,
+	})
+	l.Info("Check if file exists")
+	if _, err := AppFS.Stat("/path/to/whatever"); err != nil {
+		l.Info("File does not exist")
+		return fmt.Errorf("File does not exist")
+	}
+	return nil
 }
