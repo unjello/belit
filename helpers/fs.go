@@ -54,9 +54,10 @@ func FileExists(name string) error {
 		"file": name,
 	})
 	l.Info("Check if file exists")
-	if _, err := AppFS.Stat("/path/to/whatever"); err != nil {
+	if _, err := AppFS.Stat(name); err != nil {
 		l.Info("File does not exist")
 		return fmt.Errorf("File does not exist")
 	}
+	l.Info("File exists")
 	return nil
 }
