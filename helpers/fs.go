@@ -53,7 +53,7 @@ func FileExists(name string) error {
 	l := log.WithFields(log.Fields{
 		"file": name,
 	})
-	l.Info("Check if file exists")
+	l.Debug("Check if file exists")
 	if _, err := AppFS.Stat(name); err != nil {
 		l.Info("File does not exist")
 		return fmt.Errorf("File does not exist")
