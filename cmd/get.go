@@ -36,7 +36,6 @@ Currently only github repositories are supported.`,
 			}
 		}
 
-		// TODO: do not bellyup when repo exists
 		for _, repo := range repos {
 			err := helpers.DownloadRemote("/Users/angelo/.belit", repo)
 			if err != nil {

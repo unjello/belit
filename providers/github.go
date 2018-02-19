@@ -131,6 +131,13 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	if viper.GetBool("debug") {
 		options.Progress = os.Stdout
 	}
+
+	if err := CheckFolderBeforeGitClone(fullBaseDir); err != nil {
+		log.WithFields(log.Fields{
+			"path": fullBaseDir,
+		}).Warn("Folder already contain valid Git repository")
+		return nil
+	}
 	_, err := git.PlainClone(fullBaseDir, false, &options)
 
 	if err != nil {
@@ -138,4 +145,18 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	}
 
 	return nil
+}
+
+func CheckFolderBeforeGitClone(path string) error {
+	l := log.WithFields(log.Fields{
+		"path": path,
+	})
+	l.Debug("Check if path contains valid git repository")
+	if _, err := git.PlainOpen(path); err != nil {
+		l.Debug("Folder does not contain git repository")
+		return nil
+	}
+
+	l.Debug("Folder does contain valid git repository")
+	return fmt.Errorf("Repository exists")
 }
