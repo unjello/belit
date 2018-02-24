@@ -122,9 +122,6 @@ func DownloadFromGitHub(baseDir string, url string) error {
 		"baseDir":  fullBaseDir,
 	}).Info("Starting download process")
 
-	w := log.WithFields(log.Fields{"provider": "git"}).Writer()
-	defer w.Close()
-
 	options := git.CloneOptions{
 		URL: fullRepoUrl,
 	}
