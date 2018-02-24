@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include /* github.com/catchorg/Catch2/include/ */ "catch.hpp"
+#include /* github.com/catchorg/Catch2/single_include/ */ "catch.hpp"
 
 int Factorial( int number ) {
     return number <= 1 ? 1      : Factorial( number - 1 ) * number;
