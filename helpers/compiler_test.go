@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -33,5 +34,18 @@ func TestGetCompilerOptions(t *testing.T) {
 		if actual.CompilerEnv != v.expected {
 			t.Errorf("GetCompilerOptions(%s): expected %s, actual %s", v.file, v.expected, actual.CompilerEnv)
 		}
+	}
+}
+
+func TestGetUnknownCompilerOptions(t *testing.T) {
+	var unknownCompilerFiles = []string{
+		"file.txt",
+		"file.go",
+		"/folder/file.csv",
+	}
+
+	for _, v := range unknownCompilerFiles {
+		_, err := GetCompilerOptions(v)
+		assert.NotNil(t, err)
 	}
 }
