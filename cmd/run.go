@@ -3,14 +3,16 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"strings"
 
-	"github.com/unjello/belit/helpers"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/unjello/belit/helpers"
 )
 
 var AppFs = afero.NewOsFs()
@@ -41,13 +43,38 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 
-		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-o", tempFile}
+		sources, err := helpers.GetSources(fileName)
+		if err != nil {
+			panic(err)
+		}
+		// TODO: Refactor this into config
+		baseDir := "/Users/angelo/.belit/src"
+		var includes []string
+		for _, s := range sources {
+			log.WithFields(log.Fields{
+				"file":   fileName,
+				"repo":   s.RepositoryPath,
+				"header": s.HeaderName,
+			}).Debug("Found header meta embedded in source code.")
+
+			inc := fmt.Sprintf("-I%s", path.Join(baseDir, s.RepositoryPath))
+			includes = append(includes, inc)
+			log.WithFields(log.Fields{
+				"file":    fileName,
+				"include": inc,
+			}).Info("Adding compiler options")
+		}
+
+		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-std=c++11", "-o", tempFile}
 		compileOptionsStr := viper.GetString(meta.CompilerOptionsEnv)
 		// `strings.Split` does return 1-element array if string is empty, but separator not.
 		// need to test for string length first.
 		if len(compileOptionsStr) > 0 {
 			compileOptions := strings.Split(compileOptionsStr, " ")
 			compileCommand = append(compileCommand, compileOptions...)
+		}
+		if len(includes) > 0 {
+			compileCommand = append(compileCommand, includes...)
 		}
 		if viper.GetBool("debug") {
 			compileCommand = append(compileCommand, "-v")

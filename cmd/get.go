@@ -37,6 +37,7 @@ Currently only github repositories are supported.`,
 		}
 
 		for _, repo := range repos {
+			// TODO: Refcator path into config
 			err := helpers.DownloadRemote("/Users/angelo/.belit", repo)
 			if err != nil {
 				panic(err)
