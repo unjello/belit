@@ -15,6 +15,7 @@
 
 # IDE
 .vscode/
+.idea/
 
 # Program exe
 belit
