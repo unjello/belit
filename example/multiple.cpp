@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include /* github.com/catchorg/Catch2/include/ */ "catch.hpp"
+#include /* github.com/catchorg/Catch2/single_include/ */ "catch.hpp"
 #include/*https://github.com/nothings/stb*/"stb.h"
 
 TEST_CASE("STB is included" ) {
