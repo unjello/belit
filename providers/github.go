@@ -8,25 +8,27 @@ import (
 	"path"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/unjello/belit/config"
 	git "gopkg.in/src-d/go-git.v4"
 )
 
 func ensureHttpsInUrl(url string) string {
 	i := strings.Index(url, "://")
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"url": url,
 	})
 	if i == -1 {
 		newUrl := fmt.Sprint("https://", url)
-		l.WithFields(log.Fields{
+		l.WithFields(logrus.Fields{
 			"new": newUrl,
 		}).Debug("No prefix detected. Adding https://.")
 		return newUrl
 	} else if url[:i] != "https" {
 		newUrl := fmt.Sprint("https://", url[i+3:])
-		l.WithFields(log.Fields{
+		l.WithFields(logrus.Fields{
 			"new": newUrl,
 		}).Debug("Wrong prefix detected. Changing to https://.")
 		return newUrl
@@ -35,7 +37,8 @@ func ensureHttpsInUrl(url string) string {
 }
 
 func (repo *GitRepo) getUrl() string {
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"protocol": repo.protocol,
 		"site":     repo.site,
 		"user":     repo.user,
@@ -48,7 +51,7 @@ func (repo *GitRepo) getUrl() string {
 	} else {
 		newUrl = fmt.Sprint(repo.protocol, "://", strings.Join([]string{repo.site, repo.user, repo.repo}, "/"))
 	}
-	l.WithFields(log.Fields{
+	l.WithFields(logrus.Fields{
 		"newUrl": newUrl,
 	}).Info("Extracted GitHub repository URL")
 	return newUrl
@@ -75,7 +78,8 @@ func getGitRepo(url string) (GitRepo, error) {
 		path     = ""
 	)
 
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"url": url,
 	})
 
@@ -116,7 +120,8 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	}
 	fullRepoUrl := ensureHttpsInUrl(repo.getUrl())
 	fullBaseDir := repo.getBasePath(baseDir)
-	log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	log.WithFields(logrus.Fields{
 		"provider": "github",
 		"url":      fullRepoUrl,
 		"baseDir":  fullBaseDir,
@@ -130,7 +135,7 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	}
 
 	if err := CheckFolderBeforeGitClone(fullBaseDir); err != nil {
-		log.WithFields(log.Fields{
+		log.WithFields(logrus.Fields{
 			"path": fullBaseDir,
 		}).Warn("Folder already contain valid Git repository")
 		return nil
@@ -145,7 +150,8 @@ func DownloadFromGitHub(baseDir string, url string) error {
 }
 
 func CheckFolderBeforeGitClone(path string) error {
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"path": path,
 	})
 	l.Debug("Check if path contains valid git repository")

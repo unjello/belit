@@ -9,7 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+	"github.com/unjello/belit/config"
 )
 
 const (
@@ -53,7 +54,8 @@ func RunCommand(command []string) (string, string, error) {
 	if len(command) < 1 {
 		return "", "", fmt.Errorf(errorNoCommand)
 	}
-	log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	log.WithFields(logrus.Fields{
 		"cmd": strings.Join(command, " "),
 	}).Info(infoExecutingCommand)
 

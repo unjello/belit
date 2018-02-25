@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+	"github.com/unjello/belit/config"
 )
 
 type CompilerOptions struct {
@@ -16,7 +17,8 @@ type CompilerOptions struct {
 
 func GetCompilerOptions(filename string) (CompilerOptions, error) {
 	ext := filepath.Ext(filename)
-	log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	log.WithFields(logrus.Fields{
 		"file": filename,
 		"ext":  ext,
 	}).Info("Looking for matching compiler")

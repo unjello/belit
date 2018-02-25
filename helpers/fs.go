@@ -6,17 +6,19 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
+	"github.com/unjello/belit/config"
 )
 
 func EnsureDirectory(baseDir string) {
-	log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	log.WithFields(logrus.Fields{
 		"folder": baseDir,
 	}).Debug("Ensure folder exists")
 	err := AppFS.MkdirAll(baseDir, os.ModeDir|0775)
 	if err != nil {
-		log.WithFields(log.Fields{
+		log.WithFields(logrus.Fields{
 			"folder": baseDir,
 			"error":  err,
 		}).Errorf("Error creating folder")
@@ -24,7 +26,8 @@ func EnsureDirectory(baseDir string) {
 }
 
 func RemoveFile(name string) error {
-	log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	log.WithFields(logrus.Fields{
 		"file": name,
 	}).Debug("Remove file")
 	return AppFS.Remove(name)
@@ -32,7 +35,8 @@ func RemoveFile(name string) error {
 
 func GetTempFile() (string, error) {
 	tempDir := afero.GetTempDir(AppFS, "belit")
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"folder": tempDir,
 	})
 	l.Debug("Created temporary folder")
@@ -42,7 +46,7 @@ func GetTempFile() (string, error) {
 		l.Error("Error creating temporary file")
 		return "", err
 	}
-	log.WithFields(log.Fields{
+	log.WithFields(logrus.Fields{
 		"file": tempFile.Name(),
 	}).Debug("Created temporary file")
 
@@ -50,7 +54,8 @@ func GetTempFile() (string, error) {
 }
 
 func FileExists(name string) error {
-	l := log.WithFields(log.Fields{
+	log := config.GetConfig().Log
+	l := log.WithFields(logrus.Fields{
 		"file": name,
 	})
 	l.Debug("Check if file exists")

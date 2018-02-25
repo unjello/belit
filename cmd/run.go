@@ -8,10 +8,11 @@ import (
 	"path"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
 )
 
@@ -49,9 +50,11 @@ var runCmd = &cobra.Command{
 		}
 		// TODO: Refactor this into config
 		baseDir := "/Users/angelo/.belit/src"
+		log := config.GetConfig().Log
+
 		var includes []string
 		for _, s := range sources {
-			log.WithFields(log.Fields{
+			log.WithFields(logrus.Fields{
 				"file":   fileName,
 				"repo":   s.RepositoryPath,
 				"header": s.HeaderName,
@@ -59,7 +62,7 @@ var runCmd = &cobra.Command{
 
 			inc := fmt.Sprintf("-I%s", path.Join(baseDir, s.RepositoryPath))
 			includes = append(includes, inc)
-			log.WithFields(log.Fields{
+			log.WithFields(logrus.Fields{
 				"file":    fileName,
 				"include": inc,
 			}).Info("Adding compiler options")

@@ -3,14 +3,13 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"runtime"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/unjello/belit/config"
 )
 
 var cfgFile string
@@ -27,31 +26,32 @@ in C/C++.`,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		config.GetConfig().Log.Panic(err)
 	}
 }
 
+// Verbose is 1st least noisy debugging level for Belit
 var Verbose bool
+
+// Noisy is 2nd, most noisy debugging level for Belit
 var Noisy bool
+
+// Debug is 3rd debugging level, that combines Noisy of Belit, and enables additional
+// logging in spawned programs.
 var Debug bool
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output (info)")
-	rootCmd.PersistentFlags().BoolVarP(&Noisy, "noisy", "n", false, "noisy output (trace)")
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "debug output ( w/ output from commands)")
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
-	viper.BindPFlag("noisy", rootCmd.PersistentFlags().Lookup("noisy"))
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
-	viper.SetDefault("verbose", false)
-	viper.SetDefault("noisy", false)
-	viper.SetDefault("debug", false)
+
+	addBoolFlag(&Verbose, false, "verbose", "v", "verbose output (info)")
+	addBoolFlag(&Noisy, false, "noisy", "n", "noisy output (trace)")
+	addBoolFlag(&Debug, false, "debug", "D", "debug output ( w/ output from commands)")
 
 	viper.BindEnv("cxx", "CXX")
 	viper.BindEnv("cc", "CC")
 	viper.BindEnv("cxxopts", "CXXOPTS")
 	viper.BindEnv("ccopts", "CCOPTS")
+
 	switch runtime.GOOS {
 	case "linux":
 		viper.SetDefault("cxx", "/usr/bin/g++")
@@ -69,21 +69,23 @@ func init() {
 }
 
 func initConfig() {
+	log := config.GetConfig().Log
 	if viper.GetBool("verbose") == true {
-		logrus.SetLevel(logrus.InfoLevel)
-	} else if viper.GetBool("noisy") == true || viper.GetBool("debug") == true {
-		logrus.SetLevel(logrus.DebugLevel)
+		log.SetLevel(logrus.InfoLevel)
+		log.Info("Enabled verbose logging level")
+	} else if viper.GetBool("noisy") == true {
+		log.SetLevel(logrus.DebugLevel)
+		log.Info("Enabled noisy logging level")
+	} else if viper.GetBool("debug") == true {
+		log.SetLevel(logrus.DebugLevel)
+		log.Info("Enabled debug logging level")
 	} else {
-		logrus.SetLevel(logrus.ErrorLevel)
+		log.SetLevel(logrus.ErrorLevel)
 	}
+}
 
-	log.WithFields(log.Fields{
-		"verbose": viper.GetBool("verbose"),
-	}).Debug("Config value set")
-	log.WithFields(log.Fields{
-		"noisy": viper.GetBool("noisy"),
-	}).Debug("Config value set")
-	log.WithFields(log.Fields{
-		"debug": viper.GetBool("debug"),
-	}).Debug("Config value set")
+func addBoolFlag(p *bool, defaultValue bool, name string, shortHand string, description string) {
+	rootCmd.PersistentFlags().BoolVarP(p, name, shortHand, defaultValue, description)
+	viper.BindPFlag(name, rootCmd.PersistentFlags().Lookup(name))
+	viper.SetDefault(name, defaultValue)
 }
