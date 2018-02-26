@@ -5,7 +5,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -14,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
+	"github.com/unjello/belit/providers"
 )
 
 var AppFs = afero.NewOsFs()
@@ -60,7 +60,11 @@ var runCmd = &cobra.Command{
 				"header": s.HeaderName,
 			}).Debug("Found header meta embedded in source code.")
 
-			inc := fmt.Sprintf("-I%s", path.Join(baseDir, s.RepositoryPath))
+			repo, err := providers.GetGitRepo(s.RepositoryPath)
+			if err != nil {
+				panic(err)
+			}
+			inc := fmt.Sprintf("-I%s", repo.GetIncludePath(baseDir))
 			includes = append(includes, inc)
 			log.WithFields(logrus.Fields{
 				"file":    fileName,

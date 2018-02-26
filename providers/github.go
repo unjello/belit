@@ -57,8 +57,12 @@ func (repo *GitRepo) getUrl() string {
 	return newUrl
 }
 
-func (repo *GitRepo) getBasePath(baseDir string) string {
+func (repo *GitRepo) GetBasePath(baseDir string) string {
 	return path.Join(baseDir, repo.site, repo.user, repo.repo)
+}
+
+func (repo *GitRepo) GetIncludePath(baseDir string) string {
+	return path.Join(baseDir, repo.site, repo.user, repo.repo, repo.path)
 }
 
 type GitRepo struct {
@@ -69,7 +73,7 @@ type GitRepo struct {
 	path     string
 }
 
-func getGitRepo(url string) (GitRepo, error) {
+func GetGitRepo(url string) (GitRepo, error) {
 	var (
 		protocol = ""
 		site     string
@@ -114,12 +118,12 @@ func getGitRepo(url string) (GitRepo, error) {
 }
 
 func DownloadFromGitHub(baseDir string, url string) error {
-	repo, errr := getGitRepo(url)
+	repo, errr := GetGitRepo(url)
 	if errr != nil {
 		panic(errr)
 	}
 	fullRepoUrl := ensureHttpsInUrl(repo.getUrl())
-	fullBaseDir := repo.getBasePath(baseDir)
+	fullBaseDir := repo.GetBasePath(baseDir)
 	log := config.GetConfig().Log
 	log.WithFields(logrus.Fields{
 		"provider": "github",

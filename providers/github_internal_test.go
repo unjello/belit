@@ -42,7 +42,7 @@ var gitRepoData = []struct {
 
 func TestGetGitRepo(t *testing.T) {
 	for _, v := range gitRepoData {
-		actual, err := getGitRepo(v.url)
+		actual, err := GetGitRepo(v.url)
 		if err != nil {
 			t.Errorf("getGitRepo(%s): expected success, actual error: %s", v.url, err)
 		}
@@ -64,7 +64,7 @@ var gitRepoInvalidData = []string{
 
 func TestGetGitRepoInvalid(t *testing.T) {
 	for _, url := range gitRepoInvalidData {
-		_, err := getGitRepo(url)
+		_, err := GetGitRepo(url)
 		if err == nil {
 			t.Errorf("getGitRepo(%s): expected error, actual success", url)
 		}
@@ -95,7 +95,7 @@ func TestGitRepoGetBasePath(t *testing.T) {
 	const expected = "/home/xxx/.belit/src/github.com/user/repo"
 
 	for _, v := range gitRepoUrlData {
-		path := v.repo.getBasePath(baseDir)
+		path := v.repo.GetBasePath(baseDir)
 		if path != expected {
 			t.Errorf("getBasePath(%s, %+v): expected: %s, actual: %s", baseDir, v.repo, expected, path)
 		}
