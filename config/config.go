@@ -6,6 +6,7 @@ package config
 
 import (
 	"os"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -18,16 +19,16 @@ type Config struct {
 }
 
 var config *Config
+var once sync.Once
 
 // GetConfig returns system configuration
-func GetConfig() Config {
-	return *config
-}
-
-func init() {
-	config = &Config{
-		Fs:  afero.NewOsFs(),
-		Log: logrus.New(),
-	}
-	config.Log.Out = os.Stdout
+func GetConfig() *Config {
+	once.Do(func() {
+		config = &Config{
+			Fs:  afero.NewOsFs(),
+			Log: logrus.New(),
+		}
+		config.Log.Out = os.Stdout
+	})
+	return config
 }

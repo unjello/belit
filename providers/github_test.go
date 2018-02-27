@@ -4,12 +4,8 @@ package providers
 import (
 	"testing"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 )
-
-func init() {
-	log.SetLevel(log.PanicLevel)
-}
 
 var httpsInURLData = []struct {
 	url      string
@@ -22,8 +18,9 @@ var httpsInURLData = []struct {
 }
 
 func TestEnsureHttpsInUrl(t *testing.T) {
+	log, _ := test.NewNullLogger()
 	for _, v := range httpsInURLData {
-		actual := ensureHttpsInUrl(v.url)
+		actual := ensureHttpsInUrl(log, v.url)
 		if actual != v.expected {
 			t.Errorf("ensureHttpsInUrl(%s): expected %s, actual %s", v.url, v.expected, actual)
 		}
