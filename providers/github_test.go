@@ -20,7 +20,7 @@ var httpsInURLData = []struct {
 func TestEnsureHttpsInUrl(t *testing.T) {
 	log, _ := test.NewNullLogger()
 	for _, v := range httpsInURLData {
-		actual := ensureHttpsInUrl(log, v.url)
+		actual := ensureHTTPSInURL(log, v.url)
 		if actual != v.expected {
 			t.Errorf("ensureHttpsInUrl(%s): expected %s, actual %s", v.url, v.expected, actual)
 		}

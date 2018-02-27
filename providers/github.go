@@ -14,26 +14,26 @@ import (
 	git "gopkg.in/src-d/go-git.v4"
 )
 
-func ensureHttpsInUrl(log config.Logger, url string) string {
+func ensureHTTPSInURL(log config.Logger, url string) string {
 	i := strings.Index(url, "://")
 	l := log.WithFields(logrus.Fields{
 		"url": url,
 	})
 
 	if i == -1 {
-		newUrl := fmt.Sprint("https://", url)
+		newURL := fmt.Sprint("https://", url)
 		l.WithFields(logrus.Fields{
-			"new": newUrl,
+			"new": newURL,
 		}).Debug("No prefix detected. Adding https://.")
 
-		return newUrl
+		return newURL
 	} else if url[:i] != "https" {
-		newUrl := fmt.Sprint("https://", url[i+3:])
+		newURL := fmt.Sprint("https://", url[i+3:])
 		l.WithFields(logrus.Fields{
-			"new": newUrl,
+			"new": newURL,
 		}).Debug("Wrong prefix detected. Changing to https://.")
 
-		return newUrl
+		return newURL
 	}
 
 	return url
@@ -126,7 +126,7 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	if errr != nil {
 		panic(errr)
 	}
-	fullRepoUrl := ensureHttpsInUrl(cfg.Log, repo.getUrl())
+	fullRepoUrl := ensureHTTPSInURL(cfg.Log, repo.getUrl())
 	fullBaseDir := repo.GetBasePath(baseDir)
 	log := config.GetConfig().Log
 	log.WithFields(logrus.Fields{
