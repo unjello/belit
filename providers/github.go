@@ -39,7 +39,7 @@ func ensureHTTPSInURL(log config.Logger, url string) string {
 	return url
 }
 
-func (repo *GitRepo) getUrl() string {
+func (repo *GitRepo) getURL() string {
 	log := config.GetConfig().Log
 	l := log.WithFields(logrus.Fields{
 		"protocol": repo.protocol,
@@ -126,7 +126,7 @@ func DownloadFromGitHub(baseDir string, url string) error {
 	if errr != nil {
 		panic(errr)
 	}
-	fullRepoUrl := ensureHTTPSInURL(cfg.Log, repo.getUrl())
+	fullRepoURL := ensureHTTPSInURL(cfg.Log, repo.getURL())
 	fullBaseDir := repo.GetBasePath(baseDir)
 	log := config.GetConfig().Log
 	log.WithFields(logrus.Fields{
