@@ -38,8 +38,9 @@ var gitRepoData = []struct {
 }
 
 func TestGetGitRepo(t *testing.T) {
+	log, _ := test.NewNullLogger()
 	for _, v := range gitRepoData {
-		actual, err := GetGitRepo(v.url)
+		actual, err := GetGitRepo(log, v.url)
 
 		assert.Nil(t, err)
 		assert.Equal(t, v.expected, actual)
@@ -57,8 +58,9 @@ var gitRepoInvalidData = []string{
 }
 
 func TestGetGitRepoInvalid(t *testing.T) {
+	log, _ := test.NewNullLogger()
 	for _, url := range gitRepoInvalidData {
-		_, err := GetGitRepo(url)
+		_, err := GetGitRepo(log, url)
 
 		assert.NotNil(t, err)
 	}
@@ -75,8 +77,9 @@ var gitRepoURLData = []struct {
 }
 
 func TestGitRepoGetUrl(t *testing.T) {
+	log, _ := test.NewNullLogger()
 	for _, v := range gitRepoURLData {
-		url := v.repo.getUrl()
+		url := v.repo.getURL(log)
 
 		assert.Equal(t, v.expected, url)
 	}
