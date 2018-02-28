@@ -122,7 +122,7 @@ func ensureHTTPSInURL(log config.Logger, url string) string {
 	return url
 }
 
-// DownloadFromGithub takes a repo, and if it does not exists
+// DownloadFromGitHub takes a repo, and if it does not exists
 // locally, it clones it to cache directory
 func DownloadFromGitHub(log config.Logger, baseDir string, url string) error {
 	repo, err := GetGitRepo(log, url)
@@ -146,7 +146,7 @@ func DownloadFromGitHub(log config.Logger, baseDir string, url string) error {
 		options.Progress = os.Stdout
 	}
 
-	if err := CheckFolderBeforeGitClone(log, fullBaseDir); err != nil {
+	if err := ShouldCloneProceed(log, fullBaseDir); err != nil {
 		log.WithFields(logrus.Fields{
 			"path": fullBaseDir,
 		}).Warn("Folder already contain valid Git repository")
@@ -160,8 +160,8 @@ func DownloadFromGitHub(log config.Logger, baseDir string, url string) error {
 	return nil
 }
 
-// CheckFolderBeforeGitClone decideds if clone needs to be done
-func CheckFolderBeforeGitClone(log config.Logger, path string) error {
+// ShouldCloneProceed decideds if clone needs to be done
+func ShouldCloneProceed(log config.Logger, path string) error {
 	_log := log.WithFields(logrus.Fields{
 		"path": path,
 	})
