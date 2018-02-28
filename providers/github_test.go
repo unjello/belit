@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/stretchr/testify/assert"
 )
 
 var httpsInURLData = []struct {
@@ -21,9 +22,8 @@ func TestEnsureHttpsInUrl(t *testing.T) {
 	log, _ := test.NewNullLogger()
 	for _, v := range httpsInURLData {
 		actual := ensureHTTPSInURL(log, v.url)
-		if actual != v.expected {
-			t.Errorf("ensureHttpsInUrl(%s): expected %s, actual %s", v.url, v.expected, actual)
-		}
+
+		assert.Equal(t, v.expected, actual)
 	}
 }
 
@@ -40,12 +40,9 @@ var gitRepoData = []struct {
 func TestGetGitRepo(t *testing.T) {
 	for _, v := range gitRepoData {
 		actual, err := GetGitRepo(v.url)
-		if err != nil {
-			t.Errorf("getGitRepo(%s): expected success, actual error: %s", v.url, err)
-		}
-		if actual != v.expected {
-			t.Errorf("getGitRepo(%s): expected %+v, actual %+v", v.url, v.expected, actual)
-		}
+
+		assert.Nil(t, err)
+		assert.Equal(t, v.expected, actual)
 	}
 }
 
@@ -62,9 +59,8 @@ var gitRepoInvalidData = []string{
 func TestGetGitRepoInvalid(t *testing.T) {
 	for _, url := range gitRepoInvalidData {
 		_, err := GetGitRepo(url)
-		if err == nil {
-			t.Errorf("getGitRepo(%s): expected error, actual success", url)
-		}
+
+		assert.NotNil(t, err)
 	}
 }
 
@@ -81,9 +77,8 @@ var gitRepoUrlData = []struct {
 func TestGitRepoGetUrl(t *testing.T) {
 	for _, v := range gitRepoUrlData {
 		url := v.repo.getUrl()
-		if url != v.expected {
-			t.Errorf("getUrl(%+v): expected %s, actual %s", v.repo, v.expected, url)
-		}
+
+		assert.Equal(t, v.expected, url)
 	}
 }
 
@@ -93,8 +88,7 @@ func TestGitRepoGetBasePath(t *testing.T) {
 
 	for _, v := range gitRepoUrlData {
 		path := v.repo.GetBasePath(baseDir)
-		if path != expected {
-			t.Errorf("getBasePath(%s, %+v): expected: %s, actual: %s", baseDir, v.repo, expected, path)
-		}
+
+		assert.Equal(t, expected, path)
 	}
 }
