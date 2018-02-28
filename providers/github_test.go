@@ -64,7 +64,7 @@ func TestGetGitRepoInvalid(t *testing.T) {
 	}
 }
 
-var gitRepoUrlData = []struct {
+var gitRepoURLData = []struct {
 	repo     GitRepo
 	expected string
 }{
@@ -75,7 +75,7 @@ var gitRepoUrlData = []struct {
 }
 
 func TestGitRepoGetUrl(t *testing.T) {
-	for _, v := range gitRepoUrlData {
+	for _, v := range gitRepoURLData {
 		url := v.repo.getUrl()
 
 		assert.Equal(t, v.expected, url)
@@ -86,7 +86,7 @@ func TestGitRepoGetBasePath(t *testing.T) {
 	const baseDir = "/home/xxx/.belit/src"
 	const expected = "/home/xxx/.belit/src/github.com/user/repo"
 
-	for _, v := range gitRepoUrlData {
+	for _, v := range gitRepoURLData {
 		path := v.repo.GetBasePath(baseDir)
 
 		assert.Equal(t, expected, path)
