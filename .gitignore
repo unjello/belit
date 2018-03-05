@@ -20,6 +20,8 @@
 # Program exe
 belit
 belit.exe
+debug
+debug.exe
 
 # Coverage files
 .coverprofile
