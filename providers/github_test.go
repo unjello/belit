@@ -4,7 +4,6 @@ package providers
 import (
 	"testing"
 
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,9 +18,8 @@ var httpsInURLData = []struct {
 }
 
 func TestEnsureHttpsInUrl(t *testing.T) {
-	log, _ := test.NewNullLogger()
 	for _, v := range httpsInURLData {
-		actual := ensureHTTPSInURL(log, v.url)
+		actual := ensureHTTPSInURL(v.url)
 
 		assert.Equal(t, v.expected, actual)
 	}
@@ -38,9 +36,8 @@ var gitRepoData = []struct {
 }
 
 func TestGetGitRepo(t *testing.T) {
-	log, _ := test.NewNullLogger()
 	for _, v := range gitRepoData {
-		actual, err := GetGitRepo(log, v.url)
+		actual, err := GetGitRepo(v.url)
 
 		assert.Nil(t, err)
 		assert.Equal(t, v.expected, actual)
@@ -58,9 +55,8 @@ var gitRepoInvalidData = []string{
 }
 
 func TestGetGitRepoInvalid(t *testing.T) {
-	log, _ := test.NewNullLogger()
 	for _, url := range gitRepoInvalidData {
-		_, err := GetGitRepo(log, url)
+		_, err := GetGitRepo(url)
 
 		assert.NotNil(t, err)
 	}
@@ -77,9 +73,8 @@ var gitRepoURLData = []struct {
 }
 
 func TestGitRepoGetUrl(t *testing.T) {
-	log, _ := test.NewNullLogger()
 	for _, v := range gitRepoURLData {
-		url := v.repo.getURL(log)
+		url := v.repo.getURL()
 
 		assert.Equal(t, v.expected, url)
 	}
@@ -93,5 +88,24 @@ func TestGitRepoGetBasePath(t *testing.T) {
 		path := v.repo.GetBasePath(baseDir)
 
 		assert.Equal(t, expected, path)
+	}
+}
+
+func TestGitRepoGetIncludePath(t *testing.T) {
+	const baseDir = "/home/xxx/.belit/src"
+	var gitRepoData = []struct {
+		url      string
+		expected string
+	}{
+		{"https://github.com/catchorg/Catch2/single_include/", "/home/xxx/.belit/src/github.com/catchorg/Catch2/single_include"},
+		{"https://github.com/catchorg/Catch2/single_include/even/more", "/home/xxx/.belit/src/github.com/catchorg/Catch2/single_include/even/more"},
+	}
+
+	for _, v := range gitRepoData {
+		repo, err := GetGitRepo(v.url)
+		assert.Nil(t, err)
+
+		actual := repo.GetIncludePath(baseDir)
+		assert.Equal(t, v.expected, actual)
 	}
 }

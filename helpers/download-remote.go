@@ -23,5 +23,5 @@ func DownloadRemote(baseDir string, url string) error {
 	EnsureDirectory(baseDir)
 	srcDir := path.Join(baseDir, "src")
 	EnsureDirectory(srcDir)
-	return providers.DownloadFromGitHub(log, srcDir, url)
+	return providers.DownloadFromGitHub(srcDir, url)
 }

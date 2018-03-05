@@ -60,7 +60,7 @@ var runCmd = &cobra.Command{
 				"header": s.HeaderName,
 			}).Debug("Found header meta embedded in source code.")
 
-			repo, err := providers.GetGitRepo(log, s.RepositoryPath)
+			repo, err := providers.GetGitRepo(s.RepositoryPath)
 			if err != nil {
 				panic(err)
 			}
