@@ -1,6 +1,6 @@
 // andrzej lichnerowicz, unlicensed (~public domain)
 
-package providers
+package sources
 
 import (
 	"fmt"

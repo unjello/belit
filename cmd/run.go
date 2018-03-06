@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
-	"github.com/unjello/belit/sources"
+	src "github.com/unjello/belit/sources"
 )
 
 var AppFs = afero.NewOsFs()
@@ -60,7 +60,7 @@ var runCmd = &cobra.Command{
 				"header": s.HeaderName,
 			}).Debug("Found header meta embedded in source code.")
 
-			repo, err := providers.GetGitRepo(s.RepositoryPath)
+			repo, err := src.GetGitRepo(s.RepositoryPath)
 			if err != nil {
 				panic(err)
 			}
