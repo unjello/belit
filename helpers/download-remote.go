@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/unjello/belit/config"
-	"github.com/unjello/belit/providers"
+	"github.com/unjello/belit/sources"
 )
 
 var AppFS = afero.NewOsFs()

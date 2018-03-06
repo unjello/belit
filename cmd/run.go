@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
-	"github.com/unjello/belit/providers"
+	"github.com/unjello/belit/sources"
 )
 
 var AppFs = afero.NewOsFs()
