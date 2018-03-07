@@ -9,8 +9,9 @@ import (
 
 type TestProvider struct{}
 
-func (t *TestProvider) GetName() string           { return "test" }
-func (t *TestProvider) CanHandle(uri string) bool { return false }
+func (t *TestProvider) GetName() string            { return "test" }
+func (t *TestProvider) CanHandle(string) bool  { return false }
+func (t *TestProvider) Download(path string) error { return nil }
 
 func TestRegisterProvider(t *testing.T) {
 	RegisterProvider(&TestProvider{})

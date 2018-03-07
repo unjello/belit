@@ -16,11 +16,25 @@ import (
 
 // GitRepo describes components of GitHub remote repository
 type GitRepo struct {
+	*Source
 	protocol string
 	site     string
 	user     string
 	repo     string
 	path     string
+}
+
+type GitProvider struct{}
+
+// GetName returns name for the provider
+func (p *GitProvider) GetName() string { return "git" }
+
+// CanHandle returns true, if so
+func (p *GitProvider) CanHandle(repo *Source) (GitRepo, bool) {
+	if strings.Contains(repo.uri, "github.com") {
+		return describeGitHubRepo(*repo)
+	}
+	return GitRepo{}, false
 }
 
 // GetBasePath returns local path to cloned repository
@@ -57,8 +71,7 @@ func ensureHTTPSInURL(url string) string {
 	return url
 }
 
-// GetGitRepo breaks down URI into separate components
-func GetGitRepo(url string) (GitRepo, error) {
+func describeGitHubRepo(src Source) (GitRepo, bool) {
 	var (
 		protocol = ""
 		site     string
@@ -68,18 +81,18 @@ func GetGitRepo(url string) (GitRepo, error) {
 	)
 
 	startIndex := 0
-	i := strings.Index(url, "://")
+	i := strings.Index(src.uri, "://")
 	if i != -1 {
-		protocol = url[:i]
+		protocol = src.uri[:i]
 		startIndex = i + 3
 	}
 
-	bareURL := url[startIndex:]
+	bareURL := src.uri[startIndex:]
 	bareParts := strings.Split(bareURL, "/")
 	if bareParts[0] != "github.com" {
-		return GitRepo{}, fmt.Errorf("URL doesn't seem to point to GitHub")
+		return GitRepo{}, false
 	} else if len(bareParts) < 3 {
-		return GitRepo{}, fmt.Errorf("URL too short. GitHub repo follows format: github.com/<user>/<repo>/")
+		return GitRepo{}, false
 	}
 
 	site = bareParts[0]
@@ -90,15 +103,16 @@ func GetGitRepo(url string) (GitRepo, error) {
 		path = strings.Join(bareParts[3:], "/")
 	}
 
-	return GitRepo{protocol, site, user, repo, path}, nil
+	return GitRepo{&src, protocol, site, user, repo, path}, true
 }
 
 // DownloadFromGitHub takes a repo, and if it does not exists
 // locally, it clones it to cache directory
 func DownloadFromGitHub(baseDir string, url string) error {
-	repo, err := GetGitRepo(url)
-	if err != nil {
-		log.Panic(err)
+	repo, ok := describeGitHubRepo(Source{url, ""})
+	if !ok {
+		// FIXME: fix
+		log.Panic("TODO")
 	}
 
 	fullRepoURL := ensureHTTPSInURL(repo.getURL())

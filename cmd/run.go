@@ -3,7 +3,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -13,8 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
-	src "github.com/unjello/belit/sources"
-)
+	)
 
 var AppFs = afero.NewOsFs()
 
@@ -49,7 +47,7 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 		// TODO: Refactor this into config
-		baseDir := "/Users/angelo/.belit/src"
+		//baseDir := "/Users/angelo/.belit/src"
 		log := config.GetConfig().Log
 
 		var includes []string
@@ -60,6 +58,8 @@ var runCmd = &cobra.Command{
 				"header": s.HeaderName,
 			}).Debug("Found header meta embedded in source code.")
 
+			/*
+			FIXME: change to new interface
 			repo, err := src.GetGitRepo(s.RepositoryPath)
 			if err != nil {
 				panic(err)
@@ -70,6 +70,7 @@ var runCmd = &cobra.Command{
 				"file":    fileName,
 				"include": inc,
 			}).Info("Adding compiler options")
+			*/
 		}
 
 		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-std=c++11", "-o", tempFile}

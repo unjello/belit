@@ -26,39 +26,39 @@ func TestEnsureHttpsInUrl(t *testing.T) {
 }
 
 var gitRepoData = []struct {
-	url      string
+	src      Source
 	expected GitRepo
 }{
-	{"http://github.com/user/repo/", GitRepo{"http", "github.com", "user", "repo", ""}},
-	{"github.com/user/repo/", GitRepo{"", "github.com", "user", "repo", ""}},
-	{"github.com/user/repo/folder/", GitRepo{"", "github.com", "user", "repo", "folder/"}},
-	{"https://github.com/user/repo/folder/deeper/", GitRepo{"https", "github.com", "user", "repo", "folder/deeper/"}},
+	{Source{"http://github.com/user/repo/", "" }, GitRepo{&Source{"http://github.com/user/repo/", "" }, "http", "github.com", "user", "repo", ""}},
+	{Source{"github.com/user/repo/","" }, GitRepo{&Source{"github.com/user/repo/","" },"", "github.com", "user", "repo", ""}},
+	{Source{"github.com/user/repo/folder/", "" },GitRepo{&Source{"github.com/user/repo/folder/", "" },"", "github.com", "user", "repo", "folder/"}},
+	{Source{"https://github.com/user/repo/folder/deeper/", "" },GitRepo{&Source{"https://github.com/user/repo/folder/deeper/", "" }, "https", "github.com", "user", "repo", "folder/deeper/"}},
 }
 
 func TestGetGitRepo(t *testing.T) {
 	for _, v := range gitRepoData {
-		actual, err := GetGitRepo(v.url)
+		actual, ok := describeGitHubRepo(v.src)
 
-		assert.Nil(t, err)
+		assert.True(t, ok)
 		assert.Equal(t, v.expected, actual)
 	}
 }
 
-var gitRepoInvalidData = []string{
-	"http://github.com/user",
-	"github.com/user",
-	"github.com/",
-	"gitlab.com",
-	"gitlab.com/user/repo/",
-	"http://gitlab.com/user/",
-	"other.com",
+var gitRepoInvalidData = []Source{
+	Source{"http://github.com/user", "" },
+	Source{"github.com/user", "" },
+	Source{"github.com/", "" },
+	Source{"gitlab.com", "" },
+	Source{"gitlab.com/user/repo/", "" },
+	Source{"http://gitlab.com/user/", "" },
+	Source{"other.com", "" },
 }
 
 func TestGetGitRepoInvalid(t *testing.T) {
-	for _, url := range gitRepoInvalidData {
-		_, err := GetGitRepo(url)
+	for _, src := range gitRepoInvalidData {
+		_, ok := describeGitHubRepo(src)
 
-		assert.NotNil(t, err)
+		assert.False(t, ok)
 	}
 }
 
@@ -66,10 +66,10 @@ var gitRepoURLData = []struct {
 	repo     GitRepo
 	expected string
 }{
-	{GitRepo{"http", "github.com", "user", "repo", ""}, "http://github.com/user/repo"},
-	{GitRepo{"", "github.com", "user", "repo", ""}, "github.com/user/repo"},
-	{GitRepo{"", "github.com", "user", "repo", "folder/"}, "github.com/user/repo"},
-	{GitRepo{"https", "github.com", "user", "repo", "folder/deeper/"}, "https://github.com/user/repo"},
+	{GitRepo{&Source{ "", ""}, "http", "github.com", "user", "repo", ""}, "http://github.com/user/repo"},
+	{GitRepo{&Source{"", ""}, "", "github.com", "user", "repo", ""}, "github.com/user/repo"},
+	{GitRepo{&Source{"", ""}, "", "github.com", "user", "repo", "folder/"}, "github.com/user/repo"},
+	{GitRepo{&Source{"", ""}, "https", "github.com", "user", "repo", "folder/deeper/"}, "https://github.com/user/repo"},
 }
 
 func TestGitRepoGetUrl(t *testing.T) {
@@ -102,8 +102,8 @@ func TestGitRepoGetIncludePath(t *testing.T) {
 	}
 
 	for _, v := range gitRepoData {
-		repo, err := GetGitRepo(v.url)
-		assert.Nil(t, err)
+		repo, ok := describeGitHubRepo(Source{v.url, ""} )
+		assert.True(t, ok)
 
 		actual := repo.GetIncludePath(baseDir)
 		assert.Equal(t, v.expected, actual)
