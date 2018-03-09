@@ -7,14 +7,7 @@ package sources
 type Provider interface {
 	GetName() string
 	CanHandle(uri string) bool
-	Download(path string) error
-}
-
-// Source is a generic structure for holding source meta-information
-// Needs to implement Provider interface.
-type Source struct {
-	uri      string
-	provider string
+	Download(path string, debug bool) error
 }
 
 // RegisterProvider adds provider to global map

@@ -3,6 +3,7 @@
 package helpers
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/sirupsen/logrus"
@@ -23,5 +24,11 @@ func DownloadRemote(baseDir string, url string) error {
 	EnsureDirectory(baseDir)
 	srcDir := path.Join(baseDir, "src")
 	EnsureDirectory(srcDir)
-	return sources.DownloadFromGitHub(srcDir, url)
+
+	provider := sources.GitProvider{}
+	if provider.CanHandle(url) {
+		return provider.Download(srcDir, false)
+	}
+
+	return fmt.Errorf("Unknown remote type")
 }
