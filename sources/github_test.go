@@ -7,7 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var gitRepoData = []struct {
+func TestGitProvider_GetName(t *testing.T) {
+	p := GitProvider{}
+	assert.Equal(t,"git", p.GetName())
+}
+
+
+var testDataValidGitRepositories = []struct {
 	src      string
 	protocol string
 	site string
@@ -21,8 +27,15 @@ var gitRepoData = []struct {
 	{ "https://github.com/user/repo/folder/deeper/", "https", "github.com", "user", "repo", "folder/deeper/" },
 }
 
-func TestGetGitRepo(t *testing.T) {
-	for _, v := range gitRepoData {
+func TestGitProvider_CanHandle_Valid(t *testing.T) {
+	for _, v := range testDataValidGitRepositories {
+		p := GitProvider{}
+		assert.True(t, p.CanHandle(v.src))
+	}
+}
+
+func TestGitProvider_describeGitHubRepo_Valid(t *testing.T) {
+	for _, v := range testDataValidGitRepositories {
 		protocolA, siteA, userA, repoA, pathA , ok := describeGitHubRepo(v.src)
 
 		assert.True(t, ok)
@@ -34,7 +47,7 @@ func TestGetGitRepo(t *testing.T) {
 	}
 }
 
-var gitRepoInvalidData = []string{
+var testDataInvalidGitRepositories = []string{
 	"http://github.com/user",
 	"github.com/user",
 	"github.com/",
@@ -44,8 +57,15 @@ var gitRepoInvalidData = []string{
 	"other.com",
 }
 
-func TestGetGitRepoInvalid(t *testing.T) {
-	for _, src := range gitRepoInvalidData {
+func TestGitProvider_CanHandle_Invalid(t *testing.T) {
+	for _, v := range testDataInvalidGitRepositories {
+		p := GitProvider{}
+		assert.False(t, p.CanHandle(v))
+	}
+}
+
+func TestGitProvider_describeGitHubRepo_Invalid(t *testing.T) {
+	for _, src := range testDataInvalidGitRepositories {
 		_, _, _, _, _, ok := describeGitHubRepo(src)
 
 		assert.False(t, ok)
