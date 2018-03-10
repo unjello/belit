@@ -48,8 +48,7 @@ func (p *GitProvider) Download(path string, debug bool) error {
 }
 
 func init() {
-	// FIXME: Assignment to nil map.
-	//RegisterProvider(&GitProvider{})
+	RegisterProvider(&GitProvider{})
 }
 
 // GetBasePath returns local path to cloned repository

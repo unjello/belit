@@ -15,8 +15,8 @@ func RegisterProvider(provider Provider) {
 	providers[provider.GetName()] = provider
 }
 
-var providers map[string]Provider
+var providers = initMap()
 
-func init() {
-	providers = make(map[string]Provider)
+func initMap() map[string]Provider {
+	return make(map[string]Provider)
 }
