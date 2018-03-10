@@ -108,9 +108,9 @@ func describeGitHubRepo(uri string) (string, string, string, string, string, boo
 // DownloadFromGitHub takes a repo, and if it does not exists
 // locally, it clones it to cache directory
 func DownloadFromGitHub(pimpl gitHandler, uri string, path string, debug bool) error {
-	//if err := ShouldCloneProceed(fullBaseDir); err != nil {
-	//	return nil
-	//}
+	if ok := ShouldCloneProceed(pimpl, path); ok == false {
+		return fmt.Errorf("repository already exists")
+	}
 
 	if err := pimpl.Download(uri, path, debug); err != nil {
 		return err
@@ -119,16 +119,18 @@ func DownloadFromGitHub(pimpl gitHandler, uri string, path string, debug bool) e
 	return nil
 }
 
-// ShouldCloneProceed decideds if clone needs to be done
-//func ShouldCloneProceed(path string) error {
-//	if _, err := git.PlainOpen(path); err != nil {
-//		return nil
-//	}
-//	return fmt.Errorf("Repository exists")
-//}
+// ShouldCloneProceed returns true if repository does not exist
+// in specified folder
+func ShouldCloneProceed(pimpl gitHandler, path string) bool {
+	if err := pimpl.Open(path); err != nil {
+		return true
+	}
+	return false
+}
 
 type gitHandler interface {
 	Download(url string, dir string, debug bool) error
+	Open(path string) error
 }
 type gitV4Handler struct{ gitHandler }
 
@@ -140,5 +142,10 @@ func (g gitV4Handler) Download(url string, dir string, debug bool) error {
 		options.Progress = os.Stdout
 	}
 	_, err := git.PlainClone(dir, false, &options)
+	return err
+}
+
+func (g gitV4Handler) Open(path string) error {
+	_, err := git.PlainOpen(path)
 	return err
 }
