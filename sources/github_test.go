@@ -82,13 +82,46 @@ func TestGitProvider_Download_Valid(t *testing.T) {
 
 		mockHandler := new(testRemoteHandler)
 		mockHandler.On("Download",mock.AnythingOfType("string"),mock.AnythingOfType("string"),mock.AnythingOfType("bool")).Return(nil).Once()
-		mockHandler.On("Open", mock.AnythingOfType("string")).Return(errors.New("repository already exists")).Once()
+		mockHandler.On("Open", mock.AnythingOfType("string")).Return(errors.New("could not open")).Once()
 
 		assert.True(t, p.CanHandle(v.src))
 
 		err := p.Download("test", false, mockHandler)
 
 		assert.Nil(t, err)
+		mockHandler.AssertExpectations(t)
+	}
+}
+
+func TestGitProvider_Download_ValidExisting(t *testing.T) {
+	for _, v := range testDataValidGitRepositories {
+		p := GitProvider{}
+
+		mockHandler := new(testRemoteHandler)
+		mockHandler.On("Open", mock.AnythingOfType("string")).Return(nil).Once()
+
+		assert.True(t, p.CanHandle(v.src))
+
+		err := p.Download("test", false, mockHandler)
+
+		assert.NotNil(t, err)
+		mockHandler.AssertExpectations(t)
+	}
+}
+
+func TestGitProvider_Download_ValidDownloadFailed(t *testing.T) {
+	for _, v := range testDataValidGitRepositories {
+		p := GitProvider{}
+
+		mockHandler := new(testRemoteHandler)
+		mockHandler.On("Download",mock.AnythingOfType("string"),mock.AnythingOfType("string"),mock.AnythingOfType("bool")).Return(errors.New("download failed")).Once()
+		mockHandler.On("Open", mock.AnythingOfType("string")).Return(errors.New("could not open")).Once()
+
+		assert.True(t, p.CanHandle(v.src))
+
+		err := p.Download("test", false, mockHandler)
+
+		assert.NotNil(t, err)
 		mockHandler.AssertExpectations(t)
 	}
 }
