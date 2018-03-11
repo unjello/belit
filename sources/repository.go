@@ -7,7 +7,7 @@ package sources
 type Provider interface {
 	GetName() string
 	CanHandle(uri string) bool
-	Download(path string, debug bool) error
+	Download(path string, debug bool, handlers ...interface{}) error
 }
 
 // RegisterProvider adds provider to global map
@@ -19,4 +19,9 @@ var providers = initMap()
 
 func initMap() map[string]Provider {
 	return make(map[string]Provider)
+}
+
+type remoteHandler interface {
+	Download(url string, dir string, debug bool) error
+	Open(path string) error
 }

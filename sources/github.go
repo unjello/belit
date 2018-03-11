@@ -40,11 +40,16 @@ func (p *GitProvider) CanHandle(uri string) bool {
 }
 
 // Download fetches remote repository
-func (p *GitProvider) Download(path string, debug bool) error {
+func (p *GitProvider) Download(path string, debug bool, handlers ...interface{}) error {
 	uri := ensureHTTPS(p.getURL())
 	fullPath := p.GetBasePath(path)
 
-	return DownloadFromGitHub(gitV4Handler{}, uri, fullPath, debug)
+	var handler remoteHandler = gitV4Handler{}
+	if len(handlers) == 1 {
+		handler = handlers[0].(remoteHandler)
+	}
+
+	return DownloadFromGitHub(handler, uri, fullPath, debug)
 }
 
 func init() {
@@ -107,7 +112,7 @@ func describeGitHubRepo(uri string) (string, string, string, string, string, boo
 
 // DownloadFromGitHub takes a repo, and if it does not exists
 // locally, it clones it to cache directory
-func DownloadFromGitHub(pimpl gitHandler, uri string, path string, debug bool) error {
+func DownloadFromGitHub(pimpl remoteHandler, uri string, path string, debug bool) error {
 	if ok := ShouldCloneProceed(pimpl, path); ok == false {
 		return fmt.Errorf("repository already exists")
 	}
@@ -121,22 +126,19 @@ func DownloadFromGitHub(pimpl gitHandler, uri string, path string, debug bool) e
 
 // ShouldCloneProceed returns true if repository does not exist
 // in specified folder
-func ShouldCloneProceed(pimpl gitHandler, path string) bool {
+func ShouldCloneProceed(pimpl remoteHandler, path string) bool {
 	if err := pimpl.Open(path); err != nil {
 		return true
 	}
 	return false
 }
 
-type gitHandler interface {
-	Download(url string, dir string, debug bool) error
-	Open(path string) error
-}
-type gitV4Handler struct{ gitHandler }
 
-func (g gitV4Handler) Download(url string, dir string, debug bool) error {
+type gitV4Handler struct{ remoteHandler }
+
+func (g gitV4Handler) Download(uri string, dir string, debug bool) error {
 	options := git.CloneOptions{
-		URL: url,
+		URL: uri,
 	}
 	if debug {
 		options.Progress = os.Stdout

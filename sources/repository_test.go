@@ -11,7 +11,7 @@ type TestProvider struct{}
 
 func (t *TestProvider) GetName() string            { return "test" }
 func (t *TestProvider) CanHandle(string) bool  { return false }
-func (t *TestProvider) Download(path string, debug bool) error { return nil }
+func (t *TestProvider) Download(path string, debug bool, handlers ...interface{}) error { return nil }
 
 func TestRegisterProvider(t *testing.T) {
 	RegisterProvider(&TestProvider{})
