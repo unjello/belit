@@ -9,20 +9,23 @@ import (
 	"github.com/spf13/afero"
 )
 
+var appFS = afero.NewOsFs()
+
+// TODO: add error return
 func EnsureDirectory(baseDir string) {
-	err := AppFS.MkdirAll(baseDir, os.ModeDir|0775)
+	err := appFS.MkdirAll(baseDir, os.ModeDir|0775)
 	if err != nil {
 	}
 }
 
 func RemoveFile(name string) error {
-	return AppFS.Remove(name)
+	return appFS.Remove(name)
 }
 
 func GetTempFile() (string, error) {
-	tempDir := afero.GetTempDir(AppFS, "belit")
+	tempDir := afero.GetTempDir(appFS, "belit")
 
-	tempFile, err := afero.TempFile(AppFS, tempDir, "belit-")
+	tempFile, err := afero.TempFile(appFS, tempDir, "belit-")
 	if err != nil {
 		return "", err
 	}
@@ -30,12 +33,12 @@ func GetTempFile() (string, error) {
 }
 
 func FileExists(name string) error {
-	if _, err := AppFS.Stat(name); err != nil {
+	if _, err := appFS.Stat(name); err != nil {
 		return fmt.Errorf("File does not exist")
 	}
 	return nil
 }
 
 func GetFileContents(name string) ([]byte, error) {
-	return afero.ReadFile(AppFS, name)
+	return afero.ReadFile(appFS, name)
 }

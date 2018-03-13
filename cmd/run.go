@@ -7,14 +7,11 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
 	)
-
-var AppFs = afero.NewOsFs()
 
 // rootCmd represents the base command when called without any subcommands
 var runCmd = &cobra.Command{
