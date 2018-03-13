@@ -1,7 +1,7 @@
 package helpers
 
 import (
-"testing"
+	"testing"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,9 @@ var (
 )
 
 func init() {
-	appFS = afero.NewMemMapFs()
+	if appFS.Name() != "MemMapFS" {
+		appFS = afero.NewMemMapFs()
+	}
 	for _, f := range append(files, filesToBeRemoved...) {
 		afero.WriteFile(appFS, f, []byte(f), 0644)
 	}
@@ -40,11 +42,13 @@ func TestEnsureDirectory(t *testing.T) {
 		"folder/deeper/than/previous",
 	}
 	for _, f := range folders {
-		EnsureDirectory(f)
+		err := EnsureDirectory(f)
 
-		ok, err := afero.IsDir(appFS, f)
-		assert.True(t, ok)
 		assert.Nil(t, err)
+
+		ok, e := afero.IsDir(appFS, f)
+		assert.True(t, ok)
+		assert.Nil(t, e)
 	}
 }
 
@@ -100,8 +104,9 @@ func TestGetFileContents_Exists(t *testing.T) {
 
 func TestGetFileContents_NotExists(t *testing.T) {
 	for _, f := range filesNotExist {
-		_, err := GetFileContents(f)
+		buf, err := GetFileContents(f)
 
 		assert.NotNil(t, err)
+		assert.Empty(t, buf)
 	}
 }
