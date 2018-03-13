@@ -3,11 +3,10 @@ package helpers
 
 import (
 	"bufio"
-	"fmt"
-	"os"
+	"bytes"
+	"errors"
 	"regexp"
 
-	log "github.com/sirupsen/logrus"
 )
 
 type SourceInfo struct {
@@ -15,40 +14,37 @@ type SourceInfo struct {
 	HeaderName     string
 }
 
+var (
+	ErrCouldNotOpenFile = errors.New("belit/parser: could not open file for reading")
+	ErrCouldNotCloseScanner = errors.New("belit/parser: could not close scanner")
+)
+
 const matchRepoUrl = `^\s*?#include\s*?\/\*\s*?([-a-zA-Z0-9@:%_\+\.~#?&\/=]+)\s*?\*\/\s*[<"](.*?)[>"]`
 
-func GetSources(file string) ([]SourceInfo, error) {
+func GetSourcesFromBuffer(buffer []byte) ([]SourceInfo, error) {
 	var sources []SourceInfo
 
-	l := log.WithFields(log.Fields{
-		"file": file,
-	})
-	l.Debug("Open file")
-	f, err := os.Open(file) // For read access.
-	defer f.Close()
-	if err != nil {
-		log.Fatal(err)
-		return nil, fmt.Errorf("Could not open the file")
-	}
-	scanner := bufio.NewScanner(f)
-	l2 := log.WithFields(log.Fields{
-		"pattern": matchRepoUrl,
-	})
-	l2.Debug("Look for headers using regexp")
+	reader := bytes.NewReader(buffer)
+	scanner := bufio.NewScanner(reader)
+
 	re := regexp.MustCompile(matchRepoUrl)
 	for scanner.Scan() {
 		match := re.FindStringSubmatch(scanner.Text())
 		if match != nil {
-			l.WithFields(log.Fields{
-				"match": match[1],
-			}).Debug("Found repository")
 			sources = append(sources, SourceInfo{match[1], match[2]})
 		}
 	}
-	if err = scanner.Err(); err != nil {
-		log.Fatal(err)
-		return nil, fmt.Errorf("Could not close scanner")
+	if err := scanner.Err(); err != nil {
+		return nil, ErrCouldNotCloseScanner
 	}
 
 	return sources, nil
+}
+
+func GetSources(file string) ([]SourceInfo, error) {
+	buffer, err := GetFileContents(file)
+	if err != nil {
+		return []SourceInfo{}, ErrCouldNotOpenFile
+	}
+	return GetSourcesFromBuffer(buffer)
 }
