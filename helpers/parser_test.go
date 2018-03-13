@@ -55,3 +55,10 @@ func TestGetSources_Exists(t *testing.T) {
 	assert.Equal(t, "catch.hpp", info[0].HeaderName)
 	assert.Equal(t, "github.com/catchorg/Catch2/single_include/", info[0].RepositoryPath)
 }
+
+func TestGetSources_NotExists(t *testing.T) {
+	info, err := GetSources("does-not-exist.cpp")
+
+	assert.NotNil(t, err)
+	assert.Empty(t, info)
+}
