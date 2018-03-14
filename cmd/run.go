@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -11,7 +12,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 	"github.com/unjello/belit/helpers"
-	)
+	src "github.com/unjello/belit/sources"
+)
 
 // rootCmd represents the base command when called without any subcommands
 var runCmd = &cobra.Command{
@@ -44,7 +46,7 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 		// TODO: Refactor this into config
-		//baseDir := "/Users/angelo/.belit/src"
+		baseDir := "/Users/angelo/.belit/src"
 		log := config.GetConfig().Log
 
 		var includes []string
@@ -55,19 +57,13 @@ var runCmd = &cobra.Command{
 				"header": s.HeaderName,
 			}).Debug("Found header meta embedded in source code.")
 
-			/*
-			FIXME: change to new interface
-			repo, err := src.GetGitRepo(s.RepositoryPath)
-			if err != nil {
-				panic(err)
+			provider := src.GitProvider{}
+			if provider.CanHandle(s.RepositoryPath) {
+				inc := fmt.Sprintf("-I%s", provider.GetIncludePath(baseDir))
+				includes = append(includes, inc)
+			} else {
+				panic("Cannot handle repo")
 			}
-			inc := fmt.Sprintf("-I%s", repo.GetIncludePath(baseDir))
-			includes = append(includes, inc)
-			log.WithFields(logrus.Fields{
-				"file":    fileName,
-				"include": inc,
-			}).Info("Adding compiler options")
-			*/
 		}
 
 		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-std=c++11", "-o", tempFile}
