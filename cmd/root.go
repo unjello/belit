@@ -3,16 +3,18 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"path"
 	"runtime"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/unjello/belit/config"
 )
-
-var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -40,12 +42,21 @@ var Noisy bool
 // logging in spawned programs.
 var Debug bool
 
+// BaseDirectory is where the packages will be stored and cached. All include search
+// paths for compiler will point to subfolders of this directory.
+var BaseDirectory string
+
+var cfgFile string
+
 func init() {
 	cobra.OnInitialize(initConfig)
 
 	addBoolFlag(&Verbose, false, "verbose", "v", "verbose output (info)")
 	addBoolFlag(&Noisy, false, "noisy", "n", "noisy output (trace)")
 	addBoolFlag(&Debug, false, "debug", "D", "debug output ( w/ output from commands)")
+
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
+
 
 	viper.BindEnv("cxx", "CXX")
 	viper.BindEnv("cc", "CC")
@@ -69,6 +80,27 @@ func init() {
 }
 
 func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		viper.SetConfigName("config") // name of config file (without extension)
+		viper.AddConfigPath("/etc/belit/")   // path to look for the config file in
+		viper.AddConfigPath(path.Join(home, ".belit"))  // call multiple times to add many search paths
+		viper.AddConfigPath(".")               // optionally look for config in the working directory
+		err = viper.ReadInConfig() // Find and read the config file
+		if err != nil { // Handle errors reading the config file
+			panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		}
+	}
+
 	log := config.GetConfig().Log
 	if viper.GetBool("verbose") == true {
 		log.SetLevel(logrus.InfoLevel)
