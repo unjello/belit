@@ -66,7 +66,7 @@ var runCmd = &cobra.Command{
 			}
 		}
 
-		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-std=c++11", "-o", tempFile}
+		compileCommand := []string{viper.GetString(meta.CompilerEnv), fileName, "-o", tempFile}
 		compileOptionsStr := viper.GetString(meta.CompilerOptionsEnv)
 		// `strings.Split` does return 1-element array if string is empty, but separator not.
 		// need to test for string length first.
