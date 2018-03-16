@@ -3,15 +3,45 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/unjello/belit)](https://goreportcard.com/report/github.com/unjello/belit)
 [![GoDoc](https://godoc.org/github.com/unjello/belit?status.svg)](https://godoc.org/github.com/unjello/belit)
 
-# Bêlit
+# Bêlit?
 
-- Bêlit is a pirate queen in romantic relationship with Conan. It is also an extremely simple package manager for C/C++ that works with header-only libraries.
+Bêlit is a pirate queen in romantic relationship with Conan. It is also an extremely simple package manager for C/C++ that works with header-only libraries.
+
+## Why Bêlit?
+
+I found myself writing a lot of single-file C++ tidbits, that could use unit testing. Setting up build system in C++ is tedious, especially
+if you do compile-run loop on a number of small, different, programs.
+
+Enter Bêlit. Heavily inspired by `Go`. It uses non-intrusive tagging in C++ file:
+```c++
+#include /* github.com/catchorg/Catch2/single_include/ */ "catch.hpp"
+```
+where a comment between `#include` keyword and a header name, specifies where in remote repository (currently only GitHub is supported) a header can be found.
+This comment is totally innocent, and invisible to the rest of your regular C++ ecosystem, so same source can easily work side-by-side with other generators like [Cmake](http://cmake.org) or package managers like [conan.io](http://conan.io) if you choose to use them.
+
+- Bêlit `get` command will fetch headers from remote repository and cache them.
+- Bêlit `run` command will compile the program, adjusting header search paths accordingly, and run it.
 
 ## Example
 
-Most basic example is compiling a single, standalone, executable:
+### Simple example
+
+Most basic example is compiling a program with no dependencies. In this case, `belit` is just a convenient shorthand for compilation without setting up build systems.
 ```bash
-belit run example/simple.cpp
+$ belit run example/simple.cpp
+Hello C++ world
+```
+
+### Headers example
+
+In a little more complicated example, we have a dependency on excellent unit test library: [Catch](https://github.com/catchorg/Catch2).
+
+```batch
+$ belit get example/catch.cpp
+
+$ belit run example/catch.cpp
+===============================================================================
+All tests passed (5 assertions in 2 test cases)
 ```
 
 ## License
