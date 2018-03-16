@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/unjello/belit/helpers"
 )
 
@@ -38,7 +39,7 @@ Currently only github repositories are supported.`,
 
 		for _, repo := range repos {
 			// TODO: Refcator path into config
-			err := helpers.DownloadRemote("/Users/angelo/.belit", repo)
+			err := helpers.DownloadRemote(viper.GetString("base"), repo)
 			if err != nil {
 				panic(err)
 			}

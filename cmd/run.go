@@ -5,6 +5,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -46,7 +47,7 @@ var runCmd = &cobra.Command{
 			panic(err)
 		}
 		// TODO: Refactor this into config
-		baseDir := "/Users/angelo/.belit/src"
+		baseDir := path.Join(viper.GetString("base"), "src")
 		log := config.GetConfig().Log
 
 		var includes []string

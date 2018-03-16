@@ -51,12 +51,21 @@ var cfgFile string
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	// Find home directory.
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+
 	addBoolFlag(&Verbose, false, "verbose", "v", "verbose output (info)")
 	addBoolFlag(&Noisy, false, "noisy", "n", "noisy output (trace)")
 	addBoolFlag(&Debug, false, "debug", "D", "debug output ( w/ output from commands)")
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
-
+	rootCmd.PersistentFlags().StringVarP(&BaseDirectory, "base", "b", path.Join(home, ".belit"), "base directory for package cache" )
+	viper.BindPFlag("base", rootCmd.PersistentFlags().Lookup("base"))
 
 	viper.BindEnv("cxx", "CXX")
 	viper.BindEnv("cc", "CC")
