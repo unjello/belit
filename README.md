@@ -22,6 +22,16 @@ This comment is totally innocent, and invisible to the rest of your regular C++ 
 - Bêlit `get` command will fetch headers from remote repository and cache them.
 - Bêlit `run` command will compile the program, adjusting header search paths accordingly, and run it.
 
+## Configuration
+
+Bêlit honours `CXX`, `CC`, `CXXOPTS` and `CCOPTS` environment variables. You can also use configuration file in TOML, JSON or YAML formats. Bêlit searches for file named `config.toml`, `config.json` or `config.yml` in current `.` folder, `$HOME/.belit/` or `/etc/belit/`.
+
+```yaml
+cxx: /usr/local/bin/g++-7
+cc: /usr/local/bin/gcc-7
+cxxopts: -std=c++17 -O2
+```
+
 ## Example
 
 ### Simple example
