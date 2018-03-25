@@ -7,4 +7,4 @@ int main() {
   return 0;
 }
 
-// belit: cc=g++-7 ccpts="-O2 -std=c++17"
+// belit: cc=g++-7 ccopts="-O2 -std=c++17"
