@@ -25,3 +25,21 @@ func TestExtractModelineOptions(t *testing.T) {
 		}
 	}
 }
+
+func TestExtractModeline(t *testing.T) {
+	var sources = []struct {
+		source   string
+		expected string
+	}{
+		{`// belit: cxx=g++-7 cxxopts="-O2 -std=c++17"`, `cxx=g++-7 cxxopts="-O2 -std=c++17"`},
+		{`// belit: cxx="g++-7" cxxopts="-O2 -std=c++17"`, `cxx="g++-7" cxxopts="-O2 -std=c++17"`},
+		{`/* belit: cc=gcc ccopts=-O0 */`, `cc=gcc ccopts=-O0`},
+		{`/* belit: cxx="clang-8.0" cxxopts="-O0 -D_WIN32" */`, `cxx="clang-8.0" cxxopts="-O0 -D_WIN32"`},
+	}
+
+	for _, e := range sources {
+		modeline, err := extractModeline(e.source)
+		assert.Nil(t, err)
+		assert.Equal(t, modeline, e.expected)
+	}
+}
