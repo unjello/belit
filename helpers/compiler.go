@@ -5,23 +5,19 @@ package helpers
 import (
 	"fmt"
 	"path/filepath"
-
-	"github.com/sirupsen/logrus"
-	"github.com/unjello/belit/config"
 )
 
+// CompilerOptions holds names of environments to look at
+// based on file type (extension)
 type CompilerOptions struct {
 	CompilerEnv        string
 	CompilerOptionsEnv string
 }
 
+// GetCompilerOptions returns set of names to corresponding options
+// based on file type
 func GetCompilerOptions(filename string) (CompilerOptions, error) {
 	ext := filepath.Ext(filename)
-	log := config.GetConfig().Log
-	log.WithFields(logrus.Fields{
-		"file": filename,
-		"ext":  ext,
-	}).Info("Looking for matching compiler")
 	switch ext {
 	case ".c":
 		return CompilerOptions{"cc", "ccopts"}, nil
