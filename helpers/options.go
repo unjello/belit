@@ -8,20 +8,41 @@ import (
 	"strings"
 )
 
+const (
+	matchEmbeddedModeline = `\/(\/|\*) belit: ([^\n\*]+)`
+	matchModelineOptions  = `([a-zA-Z]+)=("([^"]+)"|([\S]+))`
+)
+
 // ExtractModelineOptions searches throght the file in search of vim's
 // [modeline](http://vimdoc.sourceforge.net/htmldoc/options.html#modeline)
 // compatibile options
 func ExtractModelineOptions(buffer string) (map[string]string, error) {
 	ret := make(map[string]string)
+
+	modeline, err := extractModeline(buffer)
+	if err != nil {
+		return map[string]string{}, err
+	}
+	reader := strings.NewReader(modeline)
+	scanner := bufio.NewScanner(reader)
+	re := regexp.MustCompile(matchModelineOptions)
+	for scanner.Scan() {
+		match := re.FindAllStringSubmatch(scanner.Text(), 10)
+		if match != nil {
+			for _, v := range match {
+				if v[3] != "" {
+					ret[v[1]] = v[3]
+				} else {
+					ret[v[1]] = v[4]
+				}
+			}
+		}
+	}
 	return ret, nil
 }
 
 var (
 	ErrorModelineNotFound = errors.New("modeline not found")
-)
-
-const (
-	matchEmbeddedModeline = `\/(\/|\*) belit: ([^\n\*]+)`
 )
 
 func extractModeline(buffer string) (string, error) {
