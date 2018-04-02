@@ -32,6 +32,15 @@ cc: /usr/local/bin/gcc-7
 cxxopts: -std=c++17 -O2
 ```
 
+it also works with modeline embedded options, vim-style:
+
+```c
+int main() {
+  return 0;
+}
+/* belit: cxx=g++-7 cxxopts="-O2 -std=c++17" */
+```
+
 ## Example
 
 ### Simple example
