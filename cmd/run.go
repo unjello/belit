@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -71,7 +72,19 @@ var runCmd = &cobra.Command{
 		compileOptionsStr := viper.GetString(meta.CompilerOptionsEnv)
 		// `strings.Split` does return 1-element array if string is empty, but separator not.
 		// need to test for string length first.
-		if len(compileOptionsStr) > 0 {
+		buf, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			panic(err)
+		}
+		modeline, err := helpers.ExtractModelineOptions(string(buf))
+		if err != nil {
+			panic(err)
+		}
+		// give modeline a priority over options coming from env or config
+		if len(modeline) > 0 {
+			compileOptions := strings.Split(modeline[meta.CompilerOptionsEnv], " ")
+			compileCommand = append(compileCommand, compileOptions...)
+		} else if len(compileOptionsStr) > 0 {
 			compileOptions := strings.Split(compileOptionsStr, " ")
 			compileCommand = append(compileCommand, compileOptions...)
 		}
