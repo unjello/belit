@@ -87,6 +87,9 @@ var runCmd = &cobra.Command{
 		} else if len(compileOptionsStr) > 0 {
 			compileOptions := strings.Split(compileOptionsStr, " ")
 			compileCommand = append(compileCommand, compileOptions...)
+		} else {
+			compileOptions := strings.Split("-Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wpendantic -Wconversion -Wsign-conversion -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -Wuseless-cast -Wdouble-promotion -Wformat=2 -Weffc++", "")
+			compileCommand = append(compileCommand, compileOptions...)
 		}
 		if len(includes) > 0 {
 			compileCommand = append(compileCommand, includes...)
