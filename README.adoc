@@ -1,0 +1,5 @@
+image::http://unmaintained.tech/badge.svg[link=http://unmaintained.tech/]
+
+= DEPRECATED
+
+_bêlit_ is no longer supported, please consider using https://cmake.org/[cmake], https://mesonbuild.com/[meson] or the new kid in town - https://github.com/SanderMertens/bake[bake].
